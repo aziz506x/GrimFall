@@ -11,7 +11,7 @@ The whole game is one self-contained HTML file (`index.html`). It needs no serve
 ## Contents
 
 1. [Getting started](#getting-started)
-2. [The three factions](#the-three-factions)
+2. [The four factions](#the-four-factions)
 3. [Building your cities](#building-your-cities)
 4. [Gold and the treasury](#gold-and-the-treasury)
 5. [Armies and combat](#armies-and-combat)
@@ -40,15 +40,26 @@ The game keeps running while you're away. When you come back, a **"While you wer
 
 ---
 
-## The three factions
+## The four factions
 
 | Faction | Bonus | Legendary Lord | Special mechanic |
 |---|---|---|---|
 | 🦅 **The Empire** | Construction is 10% faster | Karl Franz (+10% army offense) | **Imperial Decrees**: issue edicts such as +20% production, −25% construction time, −30% training time or +20% garrison defense |
 | 🦢 **High Elves** | +15% resource production, +10% wall defense | Tyrion (+5% offense, +15% defense for the city he guards) | **Influence**: spend it on tribute from Lothern, court intrigue, Swordmaster reinforcements, a defensive Shield of Saphery, envoys that make a neutral faction your ally, or healing for your Lords |
 | 👹 **Greenskins** | +20% plunder, 25% faster recruitment | Grimgor Ironhide (+2% offense per victory in a row, up to +20%) | **WAAAGH!**: battles build up Fightiness, and at 100 you can call a WAAAGH! for +25% army offense |
+| ⚒️ **Dwarfs** | +15% defense for all troops, slightly stronger walls, +20% Iron and Clay. Troops march slowly | Thorgrim Grudgebearer (+10% defense for the city he guards, +1% offense per settled grudge, up to +15%) | **Book of Grudges** and the **Lost Holds** (see below) |
 
 Each faction has its own units, building art, city names, research tree, agents, Regiments of Renown and road to the Chaos Wastes.
+
+**No mirror match:** your own faction never appears as an AI rival. The other playable factions do appear as AI powers: play the Empire and the AI High Elves hold Ulthuan; play the High Elves and the AI Empire holds Altdorf; play the Dwarfs and both are present. Greenskins are the exception, because the Rival Greenskins (other Orc tribes) remain as an AI faction.
+
+### ⚒️ Dwarfs: the Book of Grudges
+- **Units:** Dwarf Warriors, Quarrellers, Thunderers, Ironbreakers, Hammerers, Gyrocopters and Gyrobombers (from the **Gyrocopter Hangar**), Grudge Throwers, the Thunderbarge war machine, and Prospectors for new cities. Dwarfs field no monsters, so their top unit is a machine.
+- **Grudges:** every raid, siege or holding taken from you is written in the Book against that faction.
+- **Settling a grudge:** beat that faction in battle, whether you win an attack on them or defeat their raid or siege. Each settled grudge gives ⭐ 200 Renown, gold, and +1% offense to Thorgrim (up to +15%).
+- **Festering:** grudges left open for more than 3 game days fester, costing −2% production each (up to −10%).
+- **The Lost Holds:** Karak Varn, Mount Gunbad and Karak Ungor start in Greenskin hands. Claim one with a Lord to reclaim it. A reclaimed hold gets **+25% Iron and Clay**, ⭐ 1,000 Renown, and settles an ancient grudge.
+- Open the Book from the 📕 panel on the City screen.
 
 ---
 
@@ -135,7 +146,7 @@ Gold is shared by your whole realm. The 🪙 counter in the header shows your tr
 ## Armies and combat
 
 ### Units
-Each faction has eight or nine combat units, including infantry, ranged troops, cavalry, elite troops, siege engines and monsters, among them the High Elves' **Sun Dragon**. Each also has Settlers for founding cities, plus the hireable mercenaries.
+Each faction has eight or nine combat units, including infantry, ranged troops, cavalry, elite troops, siege engines and a top-tier large unit: a monster such as the High Elves' **Sun Dragon**, or a war machine such as the Empire's **Steam Tank** and the Dwarfs' **Thunderbarge**. Each also has Settlers for founding cities, plus the hireable mercenaries.
 
 Every unit has offense, defense against infantry, defense against cavalry, speed, carry capacity and Crop upkeep. The Army tab lists the troops you have first, then your training options.
 
@@ -144,7 +155,7 @@ Units have combat roles that counter each other:
 
 - 🔱 **Anti-large:** up to +50% offense and defense against cavalry and monsters.
 - 🐎 **Cavalry:** up to +25% offense against ranged units.
-- 🦣 **Monsters:** up to +25% offense against infantry, ranged units and siege engines.
+- 🦣 **Large** (monsters, and ⚙️ war machines): up to +25% offense against infantry, ranged units and siege engines.
 - 🏹 **Ranged:** +30% defense when fighting behind walls.
 - 💣 **Siege:** breaks down enemy walls during an assault.
 
@@ -234,12 +245,29 @@ The map covers the whole Warhammer world, inspired by the Immortal Empires campa
 - **Seeing armies:** your own marches appear as dotted lines. You see AI armies on the move within your cities' sight, which is 3 tiles plus 1 per Watchtower level, and always see your allies' armies.
 
 ### Factions of the world
-Seventeen AI factions share the map with you: 🐐 Beastmen, 🔥 Warriors of Chaos, 🦇 Vampire Counts, ⚒️ Dwarfs, 🌳 Wood Elves, 🐺 Norsca, ⚜️ Bretonnia, ❄️ Kislev, the Southern Realms, Dark Elves, Lizardmen, Vampire Coast, Tomb Kings, Chaos Dwarfs, Ogre Kingdoms, Cathay and Rival Greenskins.
+Up to twenty AI factions share the map with you: 🐐 Beastmen, 🔥 Warriors of Chaos, 🦇 Vampire Counts, ⚒️ Dwarfs, 🌳 Wood Elves, 🐺 Norsca, ⚜️ Bretonnia, ❄️ Kislev, the Southern Realms, Dark Elves, Lizardmen, Vampire Coast, Tomb Kings, Chaos Dwarfs, Ogre Kingdoms, Cathay, Rival Greenskins, 🦅 The Empire, 🦢 High Elves and 🐀 Skaven. Your own faction is always left out (see [The four factions](#the-four-factions)).
 
 Beastmen and Chaos are always hostile. The others are open to diplomacy, and each has its own temperament: the Dwarfs keep a Book of Grudges, the Wood Elves resent armies marching through Athel Loren, and Norsca raids the richest cities.
 
+### 🐀 The Skaven
+The ratmen of the Under-Empire hold Skavenblight in the Tilean marshes, the Hell Pit in the north, and warrens under the World's Edge Mountains and the Badlands, including one beside Karak Eight Peaks.
+
+- **Units:** Skavenslaves and Clanrats in great numbers, backed by Warplock Jezzails, Plague Monks, Rat Ogres, the Doomwheel and the Warp Lightning Cannon.
+- **The Under-Empire:** once your beginner protection ends, new warrens surface every day or two, 6–12 tiles from one of your cities (richer cities attract them more). Raze them before they grow and raid you.
+- **Warpstone hunger:** if you hold a ☄️ Warpstone Crater, the Skaven target it far more often than other holdings, and come from further away to take it.
+- **Treachery:** you can sign treaties with them, but each day there's a chance they tear up every treaty at once. The chance is high (30%) when your army at home looks weak compared with their strength, and low (3%) otherwise.
+- **Relations:** they start hostile to everyone, and the Dwarfs hate them most. They also fight the Rival Greenskins, the Empire, Kislev, Cathay, the Lizardmen and the AI Dwarfs.
+
 ### Diplomacy
-Relations with each faction range from War through Neutral to Allied. Gifts of resources or gold improve them. Allies send tribute every 12 game hours and join the **Grand Alliance** against Chaos. Attacking a faction damages your relations with it.
+Open 🤝 **Diplomacy** from the top bar.
+
+- **Attitude:** each faction's attitude towards you, from −100 to +100, is built from listed reasons you can inspect. These include racial history, gifts, shared enemies, raids against them and broken promises. Most reasons fade over time.
+- **Stance:** a faction goes to **War** when its attitude falls to −50 or below, unless you have a non-aggression pact. Only an alliance makes it an **Ally**.
+- **Treaties:** non-aggression pact, trade agreement, military access, defensive pact and alliance. Each needs a minimum attitude. Your chance of agreement improves with a better attitude, a sweetener of gold, and your **reputation** for keeping your word. Breaking a treaty hurts your reputation with everyone.
+- **Gifts:** resources or gold improve attitude, with diminishing returns.
+- **📨 Inbox:** AI factions send you proposals, demands for tribute, and requests, such as raze a common enemy or deliver resources. Accepting or refusing changes your relations.
+- **War score, peace and surrender:** victories against a faction raise your war score. A beaten faction may offer peace or surrender with tribute, and you can offer peace yourself. Peace begins with a truce.
+- **Allies** send tribute every 12 game hours, may send relief armies when you are besieged, and join the **Grand Alliance** against Chaos.
 
 ### AI factions that grow on their own
 - **Growth:** AI settlements level up over time. Factions that hold more land grow faster.
@@ -329,6 +357,7 @@ Marches to the far north use your faction's road automatically whenever it is fa
 | 🦅 Empire | ❄️ **Ice Road of Kislev** | Stay out of war with Kislev. Kislevite troops also join your Citadel battles. |
 | 🦢 High Elves | 🔥 **Phoenix Gate** | Hold any Landmark, or perform the Gate Rite (Academy level 5, one game day) |
 | 👹 Greenskins | 🕳️ **The Underway** | Hold an Old Dwarf Mine. During a WAAAGH! extra Orc warbands join your Citadel battles. |
+| ⚒️ Dwarfs | 🕳️ **Ungdrin Ankor** | Hold an Old Dwarf Mine or Karak Eight Peaks |
 
 ### 🤝 The Grand Alliance
 Every faction allied with you sends about half of its strongest army to fight beside you whenever you assault the Citadel or a Chaos Champion. The battle forecast shows who is joining.

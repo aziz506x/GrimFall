@@ -62,6 +62,8 @@ nav button{flex:1;background:none;border:0;color:var(--muted);display:flex;flex-
 nav button .i{font-size:20px;filter:grayscale(.6)}
 nav button.on{color:var(--gold2);background:#2a1d12}
 nav button.on .i{filter:none}
+.hbadge{position:absolute;top:-4px;right:-4px;background:var(--red);color:#fff;font-size:10px;font-weight:700;border-radius:9px;padding:0 5px;min-width:16px;line-height:16px;font-family:sans-serif}
+#hDip{position:relative}
 .badge{position:absolute;top:2px;right:calc(50% - 22px);background:var(--red);color:#fff;font-size:10px;font-weight:700;border-radius:9px;padding:0 5px;min-width:16px;line-height:16px}
 
 /* Panels */
@@ -308,12 +310,14 @@ const BLD_DEF = {
 const ACADEMY = {
   empire: { name: 'Imperial Academy', icon: '📚' },
   elves: { name: 'Library of Hoeth', icon: '📜' },
-  greenskins: { name: 'Shaman’s Den', icon: '🦴' }
+  greenskins: { name: 'Shaman’s Den', icon: '🦴' },
+  dwarfs: { name: 'Hall of Runes', icon: '🔨' }
 };
 const TEMPLE = {
   empire: { name: 'Shrine of Sigmar', icon: '⛪' },
   elves: { name: 'Shrine of Asuryan', icon: '🕯️' },
-  greenskins: { name: 'Idol of Gork', icon: '🗿' }
+  greenskins: { name: 'Idol of Gork', icon: '🗿' },
+  dwarfs: { name: 'Shrine of the Ancestors', icon: '🏔️' }
 };
 const TRAIN_BLD = [['barracks', '⚔️', 'Barracks'], ['stables', '🐎', 'Stables'], ['workshop', '⚙️', 'Workshop'], ['residence', '🏛️', 'Residence']];
 const TERRAIN_BONUS = { forest: 'timber', deep: 'timber', jungle: 'timber', hills: 'clay', badlands: 'clay', desert: 'clay', mountain: 'iron', ash: 'iron', plains: 'crop', road: 'crop', marsh: 'crop' };
@@ -339,9 +343,16 @@ const FACTIONS = {
     lore: 'Da biggest an’ da meanest. WAAAGH! Everything not nailed down belongs to da Boss.',
     bullets: ['Troops carry 20% more loot', 'Recruitment 25% faster', 'Legendary Lord: Grimgor Ironhide'],
     cityNames: ['Skull Pass', 'Da Big Hole', 'Black Crag Camp', 'Red Eye Fort', 'Mork’s Rock', 'Gutsmasha Gate', 'Scrap Heap', 'Iron Rock', 'Badfang Hold']
+  },
+  dwarfs: {
+    name: 'Dwarfs', icon: '⚒️', village: 'Karaz-a-Karak', startRegion: 'World’s Edge Mountains',
+    perk: '+15% defense · +20% Iron & Clay · slow marches',
+    lore: 'The Dawi of Karaz Ankor. Stubborn, unbreakable, and they never, ever forget a wrong.',
+    bullets: ['All troops have 15% more defense, walls a little stronger', 'Iron and Clay production +20%; sturdy but slow-marching troops', 'Legendary Lord: Thorgrim Grudgebearer', 'The Book of Grudges: settle every wrong for Renown and gold', 'Three Lost Holds held by Greenskins wait to be reclaimed'],
+    cityNames: ['Karak Kadrin', 'Zhufbar', 'Karak Izor', 'Karak Hirn', 'Barak Varr', 'Karak Norn', 'Kraka Drak', 'Karak Azul', 'Karak Angazhar']
   }
 };
-const HOME_POS = { empire: { x: -13, y: 14 }, elves: { x: -44, y: 9, coast: true }, greenskins: { x: 30, y: -6 } };
+const HOME_POS = { empire: { x: -13, y: 14 }, elves: { x: -44, y: 9, coast: true }, greenskins: { x: 30, y: -6 }, dwarfs: { x: 25, y: 14 } };
 
 /* Player units — b = training building, req = building level */
 const UNITS = {
@@ -353,7 +364,7 @@ const UNITS = {
     { id: 'knight',     name: 'Reiksguard Knights', icon: '🏇', role: 'Cavalry',  cls: 'cav', att: 140, di: 70,  dc: 45,  spd: 14, carry: 80, upk: 3, cost: [450, 350, 600, 150],  time: 900,   b: 'stables', req: 3 },
     { id: 'demigryph',  name: 'Demigryph Knights',  icon: '🦁', role: 'Elite',    cls: 'cav', att: 210, di: 110, dc: 90,  spd: 13, carry: 100, upk: 4, cost: [800, 600, 900, 300], time: 1500,  b: 'stables', req: 10 },
     { id: 'cannon',     name: 'Great Cannon',       icon: '💣', role: 'Siege',    cls: 'inf', att: 110, di: 20,  dc: 10,  spd: 4,  carry: 0,  upk: 4, cost: [900, 400, 700, 150],  time: 1500,  b: 'workshop', req: 1 },
-    { id: 'steamtank',  name: 'Steam Tank',         icon: '🚂', role: 'Monster',  cls: 'inf', att: 300, di: 200, dc: 200, spd: 5,  carry: 0,  upk: 6, cost: [1800, 900, 2400, 400], time: 3000, b: 'workshop', req: 10 },
+    { id: 'steamtank',  name: 'Steam Tank',         icon: '🚂', role: 'War Machine',  cls: 'inf', att: 300, di: 200, dc: 200, spd: 5,  carry: 0,  upk: 6, cost: [1800, 900, 2400, 400], time: 3000, b: 'workshop', req: 10 },
     { id: 'settler',    name: 'Colonists',          icon: '🏕️', role: 'Settler',  cls: 'inf', att: 0,   di: 20,  dc: 20,  spd: 5,  carry: 0,  upk: 1, cost: [600, 650, 700, 500], time: 7200, b: 'residence', req: 5 }
   ],
   elves: [
@@ -378,6 +389,18 @@ const UNITS = {
     { id: 'lobba',    name: 'Rock Lobba',         icon: '🪨', role: 'Siege',    cls: 'inf', att: 90,  di: 15,  dc: 15,  spd: 4,  carry: 0,   upk: 4, cost: [700, 500, 400, 150],  time: 1400,  b: 'workshop', req: 1 },
     { id: 'giant',    name: 'Giant',              icon: '🧌', role: 'Monster',  cls: 'inf', att: 280, di: 160, dc: 140, spd: 6,  carry: 200, upk: 6, cost: [1600, 1200, 1400, 500], time: 2800, b: 'workshop', req: 10 },
     { id: 'settler',  name: 'Goblin Settlers',    icon: '🛖', role: 'Settler',  cls: 'inf', att: 0,   di: 20,  dc: 20,  spd: 5,  carry: 0,   upk: 1, cost: [600, 650, 700, 500], time: 7200, b: 'residence', req: 5 }
+  ],
+  dwarfs: [
+    { id: 'dwarrior',      name: 'Dwarf Warriors',  icon: '🪓', role: 'Infantry', cls: 'inf', att: 40,  di: 60,  dc: 60,  spd: 5,  carry: 50, upk: 1, cost: [110, 100, 120, 40],   time: 330,  b: 'barracks', req: 1 },
+    { id: 'dquarrel',      name: 'Quarrellers',     icon: '🏹', role: 'Ranged',   cls: 'inf', att: 55,  di: 45,  dc: 40,  spd: 5,  carry: 40, upk: 1, cost: [140, 110, 140, 50],   time: 400,  b: 'barracks', req: 3 },
+    { id: 'thunderer',     name: 'Thunderers',      icon: '🔫', role: 'Ranged',   cls: 'inf', att: 80,  di: 40,  dc: 35,  spd: 5,  carry: 40, upk: 1, cost: [200, 140, 240, 60],   time: 600,  b: 'barracks', req: 6 },
+    { id: 'dironbreaker',  name: 'Ironbreakers',    icon: '🛡️', role: 'Elite',    cls: 'inf', att: 70,  di: 150, dc: 130, spd: 4,  carry: 40, upk: 2, cost: [480, 420, 620, 180],  time: 1200, b: 'barracks', req: 9 },
+    { id: 'hammerer',      name: 'Hammerers',       icon: '🔨', role: 'Elite',    cls: 'inf', att: 160, di: 85,  dc: 75,  spd: 5,  carry: 50, upk: 2, cost: [600, 420, 640, 180],  time: 1300, b: 'barracks', req: 11 },
+    { id: 'gyrocopter',    name: 'Gyrocopter',      icon: '🚁', role: 'Cavalry',  cls: 'cav', att: 90,  di: 40,  dc: 40,  spd: 16, carry: 70, upk: 2, cost: [400, 250, 450, 120],  time: 800,  b: 'stables', req: 1 },
+    { id: 'gyrobomber',    name: 'Gyrobomber',      icon: '💥', role: 'Cavalry',  cls: 'cav', att: 160, di: 60,  dc: 55,  spd: 14, carry: 60, upk: 3, cost: [700, 400, 800, 200],  time: 1200, b: 'stables', req: 5 },
+    { id: 'grudgethrower', name: 'Grudge Thrower',  icon: '🪨', role: 'Siege',    cls: 'inf', att: 110, di: 25,  dc: 20,  spd: 4,  carry: 0,  upk: 4, cost: [850, 500, 650, 150],  time: 1500, b: 'workshop', req: 1 },
+    { id: 'thunderbarge',  name: 'Thunderbarge',    icon: '🛸', role: 'War Machine',  cls: 'inf', att: 320, di: 210, dc: 210, spd: 6,  carry: 80, upk: 7, cost: [2000, 1200, 2400, 500], time: 3200, b: 'workshop', req: 12 },
+    { id: 'settler',       name: 'Prospectors',     icon: '⛏️', role: 'Settler',  cls: 'inf', att: 0,   di: 20,  dc: 20,  spd: 5,  carry: 0,  upk: 1, cost: [600, 650, 700, 500],  time: 7200, b: 'residence', req: 5 }
   ]
 };
 
@@ -385,12 +408,14 @@ const UNITS = {
 const LEGENDS = {
   empire: { name: 'Karl Franz', title: 'Emperor of the Empire', icon: '👑', ability: 'Ghal Maraz — his army fights with +10% offense.', off: 0.10 },
   elves: { name: 'Tyrion', title: 'Defender of Ulthuan', icon: '☀️', ability: 'Sunfang — +5% army offense, and +15% defense for the city he guards.', off: 0.05, defHome: 0.15 },
-  greenskins: { name: 'Grimgor Ironhide', title: 'Da Best', icon: '💪', ability: 'Gitsnik — every victory in a row adds +2% army offense (max +20%).', streak: true }
+  greenskins: { name: 'Grimgor Ironhide', title: 'Da Best', icon: '💪', ability: 'Gitsnik — every victory in a row adds +2% army offense (max +20%).', streak: true },
+  dwarfs: { name: 'Thorgrim Grudgebearer', title: 'High King of the Dwarfs', icon: '🧔', ability: 'Throne of Power — +10% defense for the city he guards, and every grudge you settle adds +1% army offense (max +15%).', defHome: 0.10, grudge: true }
 };
 const LORDS = {
   empire: { icon: '🎖️', title: 'General of the Empire', names: ['General Helmut Brandt', 'Lady Ottilia Vogt', 'Marshal Konrad Eisen', 'Captain Elsa Richter', 'General Viktor Holz', 'Lady Margarethe Stahl', 'Marshal Ulrich Kessel'] },
   elves: { icon: '⚜️', title: 'Prince of Ulthuan', names: ['Prince Aldrion', 'Princess Seraphel', 'Lord Imrathir', 'Prince Caelith', 'Lady Ithilra', 'Prince Valmir', 'Lord Faerion'] },
-  greenskins: { icon: '👊', title: 'Warboss', names: ['Warboss Snagga', 'Warboss Grukk', 'Warboss Ugdush', 'Warboss Skarfang', 'Warboss Dregg', 'Warboss Mugsnot', 'Warboss Gorbag'] }
+  greenskins: { icon: '👊', title: 'Warboss', names: ['Warboss Snagga', 'Warboss Grukk', 'Warboss Ugdush', 'Warboss Skarfang', 'Warboss Dregg', 'Warboss Mugsnot', 'Warboss Gorbag'] },
+  dwarfs: { icon: '⛑️', title: 'Thane of the Hold', names: ['Thane Borri Ironfist', 'Thane Grimna Stonehelm', 'Lord Durgan Ironbeard', 'Thane Kazrik Hammerhand', 'Lady Helgi Gromdottir', 'Thane Bardin Goldtooth', 'Lord Okri Deepdelver'] }
 };
 const SKILLS = [
   ['command', '⚔️', 'Command', '+3% army offense per point when leading'],
@@ -400,6 +425,21 @@ const SKILLS = [
 ];
 
 const FOES = {
+  skavenslave:  { name: 'Skavenslaves',        icon: '🐀', cls: 'inf', att: 15,  di: 15,  dc: 10,  spd: 7,  carry: 30 },
+  clanrat:      { name: 'Clanrats',            icon: '🐁', cls: 'inf', att: 32,  di: 30,  dc: 25,  spd: 7,  carry: 40 },
+  jezzail:      { name: 'Warplock Jezzails',   icon: '🔫', cls: 'inf', att: 80,  di: 25,  dc: 20,  spd: 6,  carry: 30 },
+  plaguemonk:   { name: 'Plague Monks',        icon: '☣️', cls: 'inf', att: 90,  di: 30,  dc: 25,  spd: 7,  carry: 30 },
+  ratogre:      { name: 'Rat Ogres',           icon: '🐗', cls: 'inf', att: 160, di: 90,  dc: 70,  spd: 8,  carry: 60 },
+  doomwheel:    { name: 'Doomwheel',           icon: '☸️', cls: 'cav', att: 190, di: 80,  dc: 60,  spd: 12, carry: 0 },
+  warplightning:{ name: 'Warp Lightning Cannon', icon: '⚡', cls: 'inf', att: 140, di: 20, dc: 10,  spd: 4,  carry: 0 },
+  statehalb:    { name: 'Imperial Halberdiers', icon: '🗡️', cls: 'inf', att: 40,  di: 45,  dc: 60,  spd: 6,  carry: 50 },
+  stategun:     { name: 'Imperial Handgunners', icon: '🔫', cls: 'inf', att: 65,  di: 30,  dc: 25,  spd: 6,  carry: 40 },
+  empknight:    { name: 'Knights of the Empire', icon: '🏇', cls: 'cav', att: 140, di: 70,  dc: 45,  spd: 14, carry: 80 },
+  empcannon:    { name: 'Imperial Great Cannon', icon: '💣', cls: 'inf', att: 110, di: 20,  dc: 10,  spd: 4,  carry: 0 },
+  asurspear:    { name: 'Asur Spearmen',       icon: '🔱', cls: 'inf', att: 30,  di: 60,  dc: 65,  spd: 7,  carry: 40 },
+  asurarcher:   { name: 'Asur Archers',        icon: '🏹', cls: 'inf', att: 55,  di: 40,  dc: 35,  spd: 7,  carry: 40 },
+  asurhelm:     { name: 'Asur Silver Helms',   icon: '🏇', cls: 'cav', att: 130, di: 55,  dc: 55,  spd: 16, carry: 70 },
+  asurmaster:   { name: 'Asur Swordmasters',   icon: '⚔️', cls: 'inf', att: 170, di: 75,  dc: 60,  spd: 6,  carry: 40 },
   ungor:        { name: 'Ungor Raiders',       icon: '🐐', cls: 'inf', att: 20,  di: 15,  dc: 15,  spd: 7,  carry: 25 },
   gor:          { name: 'Gor Herd',            icon: '🐏', cls: 'inf', att: 40,  di: 35,  dc: 30,  spd: 6,  carry: 40 },
   centigor:     { name: 'Centigors',           icon: '🦌', cls: 'cav', att: 70,  di: 40,  dc: 30,  spd: 12, carry: 50 },
@@ -498,6 +538,9 @@ const CHAMPS = {
 
 /* Unit matchups */
 const UNIT_TAG = {
+  jezzail: 'ranged', ratogre: 'monster', doomwheel: 'monster', warplightning: 'siege',
+  dwarrior: 'antilarge', dironbreaker: 'antilarge', dquarrel: 'ranged', thunderer: 'ranged', gyrocopter: 'cav', gyrobomber: 'cav', grudgethrower: 'siege', thunderbarge: 'monster',
+  statehalb: 'antilarge', stategun: 'ranged', empknight: 'cav', empcannon: 'siege', asurspear: 'antilarge', asurarcher: 'ranged', asurhelm: 'cav',
   halberd: 'antilarge', spear: 'antilarge', phoenix: 'antilarge', goblin: 'antilarge', skeleton: 'antilarge', eternalguard: 'antilarge', ironbreaker: 'antilarge',
   handgun: 'ranged', seaguard: 'ranged', arrer: 'ranged', quarreller: 'ranged', gladeguard: 'ranged',
   pistolier: 'cav', knight: 'cav', demigryph: 'cav', reaver: 'cav', helm: 'cav', dragonprince: 'cav', wolf: 'cav', boar: 'cav',
@@ -518,7 +561,7 @@ const TAG_INFO = {
   antilarge: { icon: '🔱', name: 'Anti-large',   short: 'Anti-large',  desc: 'Up to +50% offense and defense against cavalry and monsters, scaled by how much of the enemy army they make up.' },
   ranged:    { icon: '🏹', name: 'Ranged',       short: 'Ranged',      desc: '+30% defense when fighting behind walls (Wall Lv 1+). Cavalry ride them down.' },
   cav:       { icon: '🐎', name: 'Shock cavalry', short: 'Cavalry',    desc: 'Up to +25% offense against ranged units. Countered by anti-large.' },
-  monster:   { icon: '🦣', name: 'Monster',      short: 'Monster',     desc: 'Up to +25% offense against infantry, ranged and siege. Countered by anti-large.' },
+  monster:   { icon: '🦣', name: 'Large (monsters & war machines)', short: 'Large', desc: 'Monsters and great war machines. Up to +25% offense against infantry, ranged and siege. Countered by anti-large.' },
   siege:     { icon: '💣', name: 'Siege',        short: 'Siege',       desc: 'Breaches enemy walls when assaulting. Fragile on defense.' },
   hero:      { icon: '👑', name: 'Lord',         short: 'Lord',        desc: 'Your Lord. Boosts the whole army with skills and items.' }
 };
@@ -539,6 +582,11 @@ const RORS = {
     { id: 'ror_ardboyz', base: 'blackorc', name: "Grimgor's 'Ard Boyz", icon: '💀', cond: ['wins', 60, 'Win 60 battles'], lore: 'Da biggest, meanest Black Orcs Grimgor could find. Dey don’t run. Ever.' },
     { id: 'ror_grabbas', base: 'wolf', name: "Snagla's Grabbas", icon: '🐾', cond: ['loot', 100000, 'Plunder 100,000 resources'], lore: 'Sneaky gits who never met a cart they didn’t grab.' },
     { id: 'ror_krimson', base: 'boar', name: 'Da Krimson Killerz', icon: '🩸', cond: ['kills', 5000, 'Slay 5,000 foes'], lore: 'Their boars are painted red wiv da blood of everyfing dey’ve trampled.' }
+  ],
+  dwarfs: [
+    { id: 'ror_grumblers', base: 'hammerer', name: 'The Old Grumblers', icon: '🧔', cond: ['wins', 60, 'Win 60 battles'], lore: 'Veterans so old they remember when ale was proper ale. Nothing has made them retreat in three hundred years.' },
+    { id: 'ror_settlers', base: 'dironbreaker', name: 'The Grudge-settlers', icon: '📕', cond: ['repelled', 15, 'Repel 15 raids on your cities'], lore: 'Sworn to stand until every grudge written in their clan book is avenged.' },
+    { id: 'ror_grimm', base: 'gyrobomber', name: 'Grimm’s Gyrobombers', icon: '🚁', cond: ['kills', 5000, 'Slay 5,000 foes'], lore: 'The Engineers’ Guild still argues about whether these machines should fly at all.' }
   ]
 };
 const ROR_CAP = 20;
@@ -565,10 +613,15 @@ Object.keys(UNITS).forEach(f => MERCS.forEach(m => {
   UNIT_TAG[m.id] = UNIT_TAG[m.base] || 'inf';
 }));
 function unitTag(key) { return UNIT_TAG[key] || 'inf'; }
-function tagChip(key, role) { const tg = unitTag(key), t = TAG_INFO[tg]; if (tg === 'inf' || t.short === role) return ''; return `<span class="role tagc" title="${esc(t.desc)}">${t.icon} ${t.short}</span>`; }
-function tagIcon(key) { return `<span class="tagi" title="${esc(TAG_INFO[unitTag(key)].name)}">${TAG_INFO[unitTag(key)].icon}</span>`; }
+const MACHINES = { thunderbarge: 1, steamtank: 1 };
+function tagIco(key) { return MACHINES[key] ? '⚙️' : TAG_INFO[unitTag(key)].icon; }
+function tagChip(key, role) { const tg = unitTag(key), t = TAG_INFO[tg]; if (tg === 'inf' || t.short === role) return ''; return `<span class="role tagc" title="${esc(t.desc)}">${tagIco(key)} ${t.short}</span>`; }
+function tagIcon(key) { return `<span class="tagi" title="${esc(TAG_INFO[unitTag(key)].name)}">${tagIco(key)}</span>`; }
 
-const FAC_ORDER = ['beastmen', 'chaos', 'vampires', 'dwarfs', 'woodelves', 'norsca', 'bretonnia', 'kislev', 'south', 'darkelves', 'lizardmen', 'vampcoast', 'tombkings', 'chaosdwarfs', 'ogres', 'cathay', 'orcs'];
+const FAC_ALL = ['beastmen', 'chaos', 'vampires', 'dwarfs', 'woodelves', 'norsca', 'bretonnia', 'kislev', 'south', 'darkelves', 'lizardmen', 'vampcoast', 'tombkings', 'chaosdwarfs', 'ogres', 'cathay', 'orcs', 'imperials', 'asur', 'skaven'];
+const FAC_ORDER = FAC_ALL.slice();
+const MIRROR = { empire: 'imperials', elves: 'asur', dwarfs: 'dwarfs', greenskins: null };
+function setFacOrder(fac) { FAC_ORDER.length = 0; FAC_ALL.forEach(f => { if (f !== MIRROR[fac]) FAC_ORDER.push(f); }); }
 const FACS = {
   beastmen: {
     name: 'Beastmen', icon: '🐐', color: '#b5603a', locked: true, raidW: 3,
@@ -670,14 +723,32 @@ const FACS = {
     name: 'Rival Greenskins', icon: '👺', color: '#8fbf1f', locked: true, raidW: 2, homeRegs: ['badlands', 'worldsedge'],
     comp: [['orcboy', 9, 6, 0], ['orcarrer', 0, 2.5, 0], ['orcboar', 0, 1.5, 0], ['orcgiant', 0, 0, 0.06]],
     trait: 'Rival Orc and Goblin tribes of the Badlands. Always hostile — even to other Greenskins.',
-    names: { camp: ['Red Eye Camp', 'Iron Rock Camp', 'Mount Gunbad Camp', 'Dok’s Holdout', 'Skull Rock Camp', 'Grom’s Lair', 'Gnashrak’s Den'], capital: ['Black Crag'] }
+    names: { camp: ['Red Eye Camp', 'Iron Rock Camp', 'Mount Gunbad Camp', 'Dok’s Holdout', 'Skull Rock Camp', 'Grom’s Lair', 'Gnashrak’s Den'], capital: ['Black Crag'], settlement: ['Karak Varn', 'Mount Gunbad', 'Karak Ungor', 'Karak Azgal', 'Karak Drazh'] }
+  },
+  imperials: {
+    name: 'The Empire', icon: '🦅', color: '#c9a227', locked: false, raidW: 0.7, resettle: true, homeRegs: ['reikland', 'middenland', 'stirland'],
+    comp: [['statehalb', 8, 6, 0], ['stategun', 0, 3, 0], ['empknight', 0, 1.5, 0], ['empcannon', 0, 0, 0.05]],
+    trait: 'Sigmar’s heirs in Altdorf. Steadfast against Chaos, the undead and the Greenskins; reasonable with everyone else.',
+    names: { settlement: ['Middenheim', 'Talabheim', 'Nuln', 'Wurtbad', 'Carroburg', 'Marienburg', 'Ubersreik', 'Kemperbad'], capital: ['Altdorf'] }
+  },
+  asur: {
+    name: 'High Elves', icon: '🦢', color: '#7fd0e0', locked: false, raidW: 0.5, resettle: true, homeRegs: ['ulthuan'],
+    comp: [['asurspear', 8, 6, 0], ['asurarcher', 0, 3, 0], ['asurhelm', 0, 1.5, 0], ['asurmaster', 0, 0, 0.05]],
+    trait: 'The proud Asur of Ulthuan. Bitter foes of the Dark Elves; aloof towards most, but steadfast against Chaos.',
+    names: { settlement: ['Tor Yvresse', 'Tor Achare', 'Tor Anlec', 'Tiranoc', 'Caledor', 'Saphery', 'Ellyrion'], capital: ['Lothern'] }
+  },
+  skaven: {
+    name: 'Skaven', icon: '🐀', color: '#8b6f47', locked: false, raidW: 2.2, homeRegs: ['tilea', 'worldsedge', 'kislev', 'badlands'], expTerr: ['marsh', 'hills', 'mountain', 'badlands', 'ash', 'tundra', 'forest'],
+    comp: [['skavenslave', 10, 7, 0], ['clanrat', 0, 4, 0], ['jezzail', 0, 1.2, 0], ['plaguemonk', 0, 0.8, 0], ['ratogre', 0, 0, 0.08], ['doomwheel', 0, 0, 0.03], ['warplightning', 0, 0, 0.02]],
+    trait: 'The Under-Empire. Warrens surface without warning near rich cities, they hunger for Warpstone, and their treaties last only while you look strong.',
+    names: { capital: ['Skavenblight'], settlement: ['The Hell Pit', 'Crookback Mountain', 'Cripple Peak', 'Skavenrot'], camp: ['Clan Moulder Warren', 'Clan Skryre Burrow', 'Clan Pestilens Nest', 'Clan Eshin Lair', 'Clan Rictus Burrow', 'Clan Fester Warren', 'Gnawhole', 'Rotting Burrow', 'Blight Hole', 'Clan Gnaw Warren', 'Warpstone Pit'] }
   }
 };
 const KIND_MULT = { camp: 1, settlement: 1.25, capital: 2.2, citadel: 5, champion: 6, rift: 1.1, herald: 0.8 };
 function special(s) { return s.kind === 'champion' || s.kind === 'rift' || s.kind === 'herald'; }
-const KIND_ICON = { beastmen: '🗿', chaos: '🔥', vampires: '🦇', dwarfs: '⚒️', woodelves: '🌳', norsca: '🐺', bretonnia: '⚜️', kislev: '❄️', south: '🏛️', darkelves: '🐍', lizardmen: '🦎', vampcoast: '☠️', tombkings: '🏺', chaosdwarfs: '🌋', ogres: '🍖', cathay: '🐉', orcs: '👺' };
+const KIND_ICON = { beastmen: '🗿', chaos: '🔥', vampires: '🦇', dwarfs: '⚒️', woodelves: '🌳', norsca: '🐺', bretonnia: '⚜️', kislev: '❄️', south: '🏛️', darkelves: '🐍', lizardmen: '🦎', vampcoast: '☠️', tombkings: '🏺', chaosdwarfs: '🌋', ogres: '🍖', cathay: '🐉', orcs: '👺', imperials: '🦅', asur: '🦢', skaven: '🐀' };
 const CORR_W = { chaos: 3, vampires: 2.5, beastmen: 1.2, chaosdwarfs: 1.2, vampcoast: 1.5, darkelves: 0.6 };
-const AI_WARS = { 'vampires|dwarfs': 1, 'vampires|woodelves': 1, 'norsca|dwarfs': 1, 'norsca|woodelves': 1, 'norsca|vampires': 1,
+const AI_WARS = { 'skaven|dwarfs': 1, 'skaven|orcs': 1, 'skaven|lizardmen': 1, 'skaven|imperials': 1, 'skaven|kislev': 1, 'skaven|cathay': 1, 'imperials|vampires': 1, 'imperials|norsca': 1, 'imperials|orcs': 1, 'asur|darkelves': 1, 'asur|norsca': 1, 'asur|vampcoast': 1, 'vampires|dwarfs': 1, 'vampires|woodelves': 1, 'norsca|dwarfs': 1, 'norsca|woodelves': 1, 'norsca|vampires': 1,
   'bretonnia|orcs': 1, 'bretonnia|vampires': 1, 'bretonnia|norsca': 1, 'kislev|norsca': 1, 'kislev|orcs': 1, 'darkelves|lizardmen': 1, 'darkelves|bretonnia': 1, 'darkelves|south': 1,
   'vampcoast|lizardmen': 1, 'vampcoast|south': 1, 'tombkings|south': 1, 'tombkings|vampires': 1, 'tombkings|orcs': 1, 'chaosdwarfs|dwarfs': 1, 'chaosdwarfs|cathay': 1, 'chaosdwarfs|ogres': 1,
   'chaosdwarfs|orcs': 1, 'ogres|cathay': 1, 'ogres|orcs': 1, 'orcs|dwarfs': 1, 'orcs|south': 1, 'orcs|cathay': 1, 'lizardmen|south': 1 };
@@ -811,8 +882,8 @@ function g2r(gameSec) { return gameSec * 1000 / S.speed; }
 function U(id) { return UNITS[S.faction].find(u => u.id === id); }
 function sumObj(o) { let s = 0; for (const k in o) s += o[k]; return s; }
 function inputFocused() { const a = document.activeElement; return !!(a && (a.tagName === 'INPUT' || a.tagName === 'TEXTAREA')); }
-function bldName(id) { return id === 'temple' ? TEMPLE[S.faction].name : id === 'academy' ? ACADEMY[S.faction].name : BLD_DEF[id].name; }
-function bldIcon(id) { return id === 'temple' ? TEMPLE[S.faction].icon : id === 'academy' ? ACADEMY[S.faction].icon : BLD_DEF[id].icon; }
+function bldName(id) { return id === 'temple' ? TEMPLE[S.faction].name : id === 'academy' ? ACADEMY[S.faction].name : id === 'stables' && S.faction === 'dwarfs' ? 'Gyrocopter Hangar' : BLD_DEF[id].name; }
+function bldIcon(id) { return id === 'temple' ? TEMPLE[S.faction].icon : id === 'academy' ? ACADEMY[S.faction].icon : id === 'stables' && S.faction === 'dwarfs' ? '🚁' : BLD_DEF[id].icon; }
 function cityById(id) { return S.cities.find(c => c.id === id); }
 function CUR() { return cityById(S.curCity) || S.cities[0]; }
 function capital() { return S.cities.find(c => c.capital) || S.cities[0]; }
@@ -1022,7 +1093,7 @@ function pathFrom(c, x, y) {
 function storeCap(l) { return Math.round(21.2 * Math.pow(1.2, l) - 13.2) * 100; }
 function caps(c) { const m = 1 + TB('store'); return { wh: Math.round(storeCap(c.bld.warehouse) * m), gr: Math.round(storeCap(c.bld.granary) * m) }; }
 function crannyCap(l) { return Math.round((l <= 0 ? 100 : Math.round(400 * Math.pow(1.22, l - 1) / 10) * 10) * (1 + TB('cranny'))); }
-function wallMult(l) { return Math.pow(S.faction === 'elves' ? 1.033 : 1.03, l) * (l > 0 ? 1 + TB('wall') : 1); }
+function wallMult(l) { return Math.pow(S.faction === 'elves' ? 1.033 : S.faction === 'dwarfs' ? 1.035 : 1.03, l) * (l > 0 ? 1 + TB('wall') : 1); }
 function plunderMult() { return (S.faction === 'greenskins' ? 1.2 : 1) * (1 + TB('carry')); }
 function fieldProd(l) { return FIELD_PROD[Math.min(l, FIELD_PROD.length - 1)]; }
 function warnMs(l) { return g2r(60 * (5 + 12 * l)); }
@@ -1050,6 +1121,7 @@ function corruptionPenalty(c) { return Math.min(0.5, cityCorruption(c).net / 200
 function heroGuarding(c) { return S.heroes.find(h => h.cityId === c.id && heroStatus(h) === 'home'); }
 function resMult(c, r) {
   let m = (S.faction === 'elves' ? 1.15 : 1) * (1 - corruptionPenalty(c));
+  if (S.faction === 'dwarfs') m *= (r === 'iron' || r === 'clay' ? 1.2 * (c.hold ? 1.25 : 1) : 1) * (1 - bogPenalty());
   const h = heroGuarding(c);
   if (h) m *= 1 + 0.03 * h.skills.governance;
   if (c.bonus === r) m *= 1.15;
@@ -1138,6 +1210,7 @@ function heroOffBonus(h) {
     const L = LEGENDS[S.faction];
     if (L.off) b += L.off;
     if (L.streak) b += Math.min(0.2, 0.02 * (h.streak || 0));
+    if (L.grudge) b += Math.min(0.15, 0.01 * (S.bog ? S.bog.settled : 0));
   }
   return b;
 }
@@ -1179,34 +1252,45 @@ function lordCost() { const c = 1000 * S.heroes.length; return [c, c, c, Math.ro
 /* =========================================================
    AI FACTIONS, SETTLEMENTS & DIPLOMACY
    ========================================================= */
-function stance(fac) { const r = S.rel[fac]; return r <= -50 ? 'war' : r >= 50 ? 'allied' : 'neutral'; }
+function stance(fac) { const r = S.rel[fac]; if (FACS[fac].locked) return 'war'; const D = S.dip && S.dip.f[fac]; if (D && D.tr.alliance) return 'allied'; if (r <= -50 && !(D && D.tr.nap)) return 'war'; return 'neutral'; }
 function stanceChip(fac) { const st = stance(fac); return `<span class="st ${st}">${st === 'war' ? 'WAR' : st === 'allied' ? 'ALLIED' : 'NEUTRAL'}</span>`; }
 function relBaseline(fac) {
   const day = gameHours() / 24;
   switch (fac) {
     case 'vampires': return Math.max(-80, -30 - 3 * day);
-    case 'dwarfs': return 10 - 15 * (S.grudges || 0);
-    case 'woodelves': return 0;
+    case 'dwarfs': return ({ empire: 20, elves: -10, greenskins: -60 }[S.faction] ?? 0) - 15 * (S.grudges || 0);
+    case 'woodelves': return { empire: 0, elves: 10, greenskins: -40, dwarfs: -10 }[S.faction] ?? 0;
     case 'norsca': return -60;
-    case 'bretonnia': return { empire: 25, elves: 5, greenskins: -60 }[S.faction] ?? 0;
-    case 'kislev': return 20;
-    case 'south': return 5;
+    case 'bretonnia': return { empire: 25, elves: 5, greenskins: -60, dwarfs: 15 }[S.faction] ?? 0;
+    case 'kislev': return S.faction === 'greenskins' ? -30 : 20;
+    case 'south': return S.faction === 'greenskins' ? -30 : 5;
     case 'darkelves': return S.faction === 'elves' ? -100 : -70;
-    case 'lizardmen': return S.faction === 'elves' ? 10 : 0;
+    case 'lizardmen': return { empire: 0, elves: 10, greenskins: -30, dwarfs: 0 }[S.faction] ?? 0;
     case 'vampcoast': return -60;
     case 'tombkings': return -20 - 5 * (S.tombAnger || 0);
-    case 'chaosdwarfs': return -80;
+    case 'chaosdwarfs': return S.faction === 'dwarfs' ? -100 : -80;
     case 'ogres': return -55;
-    case 'cathay': return 20;
+    case 'cathay': return S.faction === 'greenskins' ? -30 : 20;
+    case 'orcs': return S.faction === 'greenskins' ? -40 : -100;
+    case 'imperials': return { elves: 15, dwarfs: 30, greenskins: -100 }[S.faction] ?? 0;
+    case 'skaven': return { empire: -60, elves: -60, greenskins: -50, dwarfs: -100 }[S.faction] ?? -60;
+    case 'asur': return { empire: 15, dwarfs: -15, greenskins: -100 }[S.faction] ?? 0;
     default: return -100;
   }
 }
-function changeRel(fac, d) {
-  if (FACS[fac].locked) return;
-  const before = stance(fac);
-  S.rel[fac] = clamp(S.rel[fac] + d, -100, 100);
+function changeRel(fac, d, key, label, decay, cap) {
+  if (FACS[fac].locked || !FAC_ORDER.includes(fac)) return;
+  addMod(fac, key || (d >= 0 ? 'goodwill' : 'grievance'), d, label, decay, cap);
+  relRefresh(fac);
+}
+function relRefresh(fac, silent) {
+  if (FACS[fac].locked) { S.rel[fac] = -100; return; }
+  const D = dipState(fac);
+  const before = D.st || stance(fac);
+  S.rel[fac] = attitude(fac);
   const after = stance(fac);
-  if (before !== after) {
+  D.st = after;
+  if (!silent && before !== after) {
     addReport('world', `${FACS[fac].name}: now ${after === 'war' ? 'at WAR' : after === 'allied' ? 'ALLIED' : 'neutral'}`,
       after === 'war' ? `${FACS[fac].icon} The ${FACS[fac].name} now consider you an enemy.${gameHours() < protectH() ? ' Their raids will begin when your protection ends on day ' + DIFF().protectDay + '.' : ' Expect raids.'}` :
       after === 'allied' ? `${FACS[fac].icon} The ${FACS[fac].name} are now your allies. They will send tribute to your capital every 12 game hours.` :
@@ -1217,6 +1301,7 @@ function changeRel(fac, d) {
 function aiHostile(a, b) {
   if (a === b) return false;
   if (a === 'chaos' || b === 'chaos' || a === 'beastmen' || b === 'beastmen') return true;
+  if (S.dip && ((hasTreaty(a, 'alliance') && stance(b) === 'war') || (hasTreaty(b, 'alliance') && stance(a) === 'war'))) return true;
   return !!(AI_WARS[a + '|' + b] || AI_WARS[b + '|' + a]) || (S.incite || []).some(x => x.untilG > gameHours() && ((x.a === a && x.b === b) || (x.a === b && x.b === a)));
 }
 function settLvl(s) { return Math.max(1, Math.min(50, s.base + (s.bonus || 0) + Math.floor(s.gx || 0) - (s.kind === 'citadel' ? citadelWeak().lvl : 0))); }
@@ -1255,6 +1340,7 @@ function settKindName(s) {
   if (s.fac === 'beastmen') return 'Beastmen Herdstone';
   if (s.fac === 'chaos') return 'Chaos Warband';
   if (s.fac === 'ogres') return 'Ogre camp';
+  if (s.fac === 'skaven' && s.kind === 'camp') return 'Skaven warren';
   if (s.fac === 'orcs') return 'Greenskin camp';
   return FACS[s.fac].name + ' settlement';
 }
@@ -1307,8 +1393,10 @@ function genSettlements() {
   { const p = spot((x, y) => regionAt(x, y).id === 'norsca' && x >= -18); addSett('chaos', 'camp', p, 5 + Math.floor(capDist(p) / 14)); }
   addSett('vampires', 'capital', spot(inReg(['sylvania'])), 8);
   for (let i = 0; i < 3; i++) addSett('vampires', 'settlement', spot(inReg(['sylvania'])), 4);
-  addSett('dwarfs', 'capital', spot((x, y) => regionAt(x, y).id === 'worldsedge' && ['mountain', 'hills'].includes(terrAt(x, y))), 9);
-  for (let i = 0; i < 2; i++) addSett('dwarfs', 'settlement', spot((x, y) => regionAt(x, y).id === 'worldsedge' && ['mountain', 'hills'].includes(terrAt(x, y))), 5);
+  if (FAC_ORDER.includes('dwarfs')) {
+    addSett('dwarfs', 'capital', spot((x, y) => regionAt(x, y).id === 'worldsedge' && ['mountain', 'hills'].includes(terrAt(x, y))), 9);
+    for (let i = 0; i < 2; i++) addSett('dwarfs', 'settlement', spot((x, y) => regionAt(x, y).id === 'worldsedge' && ['mountain', 'hills'].includes(terrAt(x, y))), 5);
+  } else genLostHolds();
   addSett('woodelves', 'capital', spot(inReg(['athelloren'])), 8);
   for (let i = 0; i < 2; i++) addSett('woodelves', 'settlement', spot(inReg(['athelloren'])), 4);
   addSett('norsca', 'capital', spot(inReg(['norsca'])), 7);
@@ -1348,6 +1436,8 @@ function genNewFactions() {
   put('orcs', 'camp', (x, y) => regionAt(x, y).id === 'badlands' && far(x, y), 3, 3, 9);
   put('orcs', 'camp', (x, y) => regionAt(x, y).id === 'worldsedge' && far(x, y), 3, 2, 9);
   for (let i = 0; i < 2; i++) { const p = spot(R(['kurgan']), 8); if (p) addSett('chaos', 'camp', p, 5 + Math.floor(capDist(p) / 14)); }
+  genOrderFactions();
+  genSkaven();
 }
 function respawnSettlement(s) {
   if (!['beastmen', 'chaos'].includes(s.fac) && !S.setts.some(x => x.fac === s.fac && !x.dead)) { S.setts = S.setts.filter(x => x.id !== s.id); return; }
@@ -1364,7 +1454,7 @@ function respawnSettlement(s) {
   else if (s.fac === 'chaos') p = spot((x, y) => ['wastes', 'kislev', 'norsca'].includes(regionAt(x, y).id));
   else if (s.fac === 'norsca') p = spot(inReg(['norsca']));
   else p = spot(inReg(FACS[s.fac].homeRegs || [{ vampires: 'sylvania', dwarfs: 'worldsedge', woodelves: 'athelloren' }[s.fac]]));
-  const kind = s.kind === 'capital' ? 'capital' : ['beastmen', 'chaos', 'ogres', 'orcs'].includes(s.fac) ? 'camp' : 'settlement';
+  const kind = s.kind === 'capital' ? 'capital' : ['beastmen', 'chaos', 'ogres', 'orcs', 'skaven'].includes(s.fac) ? 'camp' : 'settlement';
   const n = addSett(s.fac, kind, p, s.base, (s.bonus || 0) + 1);
   if (n) addReport('world', `A new ${settKindName(n).toLowerCase()} has risen`, `<b>${esc(n.name)}</b> (Lv ${settLvl(n)}) now lurks at (${n.x}|${n.y}).`, S.time);
 }
@@ -1418,7 +1508,7 @@ function settsRegen(gh) {
 /* ----- Organic AI growth ----- */
 const KIND_W = { camp: 0.5, settlement: 2, capital: 4, citadel: 4, champion: 0 };
 const KIND_STR = { camp: 1, settlement: 1.5, capital: 3, citadel: 4, champion: 6 };
-const EXP_CAP = { beastmen: 20, chaos: 10, vampires: 7, dwarfs: 6, woodelves: 5, norsca: 7, bretonnia: 7, kislev: 6, south: 9, darkelves: 6, lizardmen: 8, vampcoast: 5, tombkings: 6, chaosdwarfs: 6, ogres: 6, cathay: 8, orcs: 9 };
+const EXP_CAP = { imperials: 7, asur: 6, skaven: 12, beastmen: 20, chaos: 10, vampires: 7, dwarfs: 6, woodelves: 5, norsca: 7, bretonnia: 7, kislev: 6, south: 9, darkelves: 6, lizardmen: 8, vampcoast: 5, tombkings: 6, chaosdwarfs: 6, ogres: 6, cathay: 8, orcs: 9 };
 const WORLD_CAP = 140;
 const RAID_REACH = 42;
 const NEVER_FALL = ['beastmen', 'chaos'];
@@ -1596,16 +1686,7 @@ function powersPanelHTML() {
     }).join('') + `<div class="muted small" style="margin-top:6px">Strength = sum of settlement levels (capitals count triple). Trend compares to 3 days ago.</div></div>`;
 }
 function worldTick(gh, dtH) {
-  FAC_ORDER.forEach(f => {
-    if (FACS[f].locked) { S.rel[f] = -100; return; }
-    const b = relBaseline(f), r = S.rel[f];
-    if (Math.abs(b - r) > 0.01) {
-      const before = stance(f);
-      const nv = r + Math.sign(b - r) * Math.min(Math.abs(b - r), 0.25 * dtH);
-      S.rel[f] = nv;
-      if (stance(f) !== before) { S.rel[f] = r; changeRel(f, nv - r); }
-    }
-  });
+  dipTick(dtH);
   S.setts.filter(s => s.dead && s.respawnG != null && s.respawnG <= gh).forEach(respawnSettlement);
   let guard = 0;
   while (gh >= S.nextHerdG && guard++ < 50) {
@@ -1616,6 +1697,7 @@ function worldTick(gh, dtH) {
       if (n) addReport('world', 'A new Herdstone rises', `🗿 Beastmen raised <b>${esc(n.name)}</b> at (${n.x}|${n.y}).`, S.time);
     }
   }
+  skavenTick(gh);
   guard = 0;
   while (gh >= S.nextWorldG && guard++ < 50) { S.nextWorldG += rand(1.5, 3); worldBattle(); }
   aiMarchTick(gh);
@@ -1744,7 +1826,7 @@ function sightR(c) { return 3 + (c.bld.watchtower || 0); }
 function seenAt(x, y) { return S.cities.some(c => Math.hypot(c.x - x, c.y - y) <= sightR(c)); }
 function aiMarchPos(m, gh) { return pathPos(m.path, (gh - m.departG) / Math.max(0.01, m.arriveG - m.departG)); }
 function aiMarchVisible(m, gh) {
-  if (!FACS[m.fac].locked && stance(m.fac) === 'allied') return true;
+  if (!FACS[m.fac].locked && (stance(m.fac) === 'allied' || hasTreaty(m.fac, 'access'))) return true;
   const p = aiMarchPos(m, gh);
   return !!p && seenAt(p[0], p[1]);
 }
@@ -1919,6 +2001,7 @@ function nextEvent() {
     if (c.feast) consider(c.feast.end, t => feastDone(cid, t));
   });
   S.marches.forEach(m => { const id = m.id; consider(m.phase === 'out' ? m.arrive : m.phase === 'siege' ? Math.min(m.siegeEnd, m.reliefAt || Infinity) : m.returnAt, t => marchEvent(id, t)); });
+  S.incoming.forEach(r => { if (r.allyRelief && r.phase === 'siege') { const id = r.id; consider(r.allyRelief.at, t => allyReliefBattle(id, t)); } });
   S.incoming.forEach(r => { const id = r.id; if (r.siege && r.phase !== 'siege') consider(r.arrive, t => beginSiege(id, t)); else consider(r.phase === 'siege' ? r.siegeEnd : r.arrive, t => incomingHits(id, t)); });
   consider(S.nextSiege, spawnSiege);
   consider(S.nextHoldAtk, spawnHoldAttack);
@@ -2113,11 +2196,13 @@ function resolveAttack(m, t) {
   if (!FACS[c.fac].locked) {
     let drop = m.mode === 'attack' ? 45 : 25;
     if (c.fac === 'dwarfs') { drop *= 2; S.grudges = (S.grudges || 0) + 1; extra += `<div class="note bad" style="margin-top:8px">📕 The Dwarfs have written your name in the Book of Grudges (${S.grudges}).</div>`; }
-    changeRel(c.fac, -drop);
+    extra += breakTreaties(c.fac);
+    changeRel(c.fac, -drop, 'attacked', 'You attacked them');
   }
   let title;
   const fname = c.name;
-  if (r.attWin) { S.stats.wins = (S.stats.wins || 0) + 1; addFight(15); }
+  if (r.attWin) { S.stats.wins = (S.stats.wins || 0) + 1; addFight(15); personaOnWin(c, m); extra += bogSettle(c.fac, `defeated at ${c.name}`); }
+  if (!FACS[c.fac].locked) wsAdd(c.fac, r.attWin ? (m.mode === 'raid' ? 3 : 6) : -4);
   c.hitG = gameHours();
   if (r.attWin) c.stunG = Math.max(c.stunG || 0, gameHours() + 24);
   if (r.attWin && m.mode === 'attack') {
@@ -2125,6 +2210,8 @@ function resolveAttack(m, t) {
     if (m.claim && h && !h.wounded && m.heroId && canClaimIt && S.renown >= nextCityReq() && S.cities.length < MAX_CITIES) {
       const wasCap = c.kind === 'capital', cfac = c.fac;
       const nc = claimSettlement(c, h);
+      dipOnDefeat(c, 'claimed');
+      if (c.lostHold) extra += reclaimHold(c, nc);
       m.heroId = null;
       title = `🏰 ${fname} claimed!`;
       extra += `<div class="note good" style="margin-top:8px">${h.icon} ${esc(h.name)} raised your banner over ${esc(fname)}. It is now your city <b>${esc(nc.name)}</b>, and ${esc(h.name)} stays to guard it. The surviving troops march home with the plunder.</div>`;
@@ -2137,6 +2224,7 @@ function resolveAttack(m, t) {
       if (m.claim && canClaimIt) extra += `<div class="note" style="margin-top:8px">Could not claim: ${!h || h.wounded ? 'your Lord fell' : S.renown < nextCityReq() ? 'not enough Renown (' + fmt(S.renown) + '/' + fmt(nextCityReq()) + ')' : 'city limit reached'}. The settlement was razed instead.</div>`;
       if (c.kind === 'capital' && m.wreck && m.wreck !== 'none') extra += wreckSettlement(c, m.wreck, surv, 'attack');
       const res = defeatSettlement(c);
+      dipOnDefeat(c, res);
       if (res === 'razed' && m.wreck && m.wreck !== 'none' && wreckPower(surv) > 0) extra += `<div class="muted small" style="margin-top:6px">🔨 No need to demolish — the whole settlement burns.</div>`;
       if (res === 'razed' && c.fac === 'beastmen') S.stats.razedBeast = (S.stats.razedBeast || 0) + 1;
       if (res === 'sacked') S.stats.sacks = (S.stats.sacks || 0) + 1;
@@ -2309,6 +2397,8 @@ function incomingHits(id, t) {
   if (raised) extra += `<div class="note" style="margin-top:8px">🧟 ${raised} of the fallen rose again to serve the Vampire Counts.</div>`;
   if (trapTxt) extra = trapTxt + extra;
   if (res.attWin) extra += stealGold();
+  if (S.faction === 'dwarfs') { if (res.attWin) bogAdd(r.fac, r.siege ? (c.capital ? `They sacked ${c.name}` : `They stormed ${c.name}`) : `They raided ${c.name} and carried off our goods`); else extra += bogSettle(r.fac, `beaten at the walls of ${c.name}`); }
+  if (!FACS[r.fac].locked) wsAdd(r.fac, r.siege ? (res.attWin ? -15 : 12) : (res.attWin ? -3 : 3));
   if (res.attWin) { const fr = freePrisoners(c, r.fac); if (fr) extra += `<div class="note bad" style="margin-top:8px">🔓 The raiders freed ${fr} of their captured kin from your traps.</div>`; }
   if (src) { src.hitG = gameHours(); if (!res.attWin) { src.gx = (src.gx || 0) - 0.25; extra += `<div class="muted small" style="margin-top:6px">📉 The defeat sets ${esc(src.name)} back in its growth.</div>`; } }
   const hostSurv = {};
@@ -2322,7 +2412,7 @@ function incomingHits(id, t) {
       else { const nm = c.name; extra += loseCity(c, r, hostSurv); siegeTitle = `🏴 ${nm} has fallen to the ${FACS[r.fac].name}!`; }
     } else {
       S.stats.siegesBroken = (S.stats.siegesBroken || 0) + 1;
-      S.renown += 150; changeRel(r.fac, 5);
+      S.renown += 150; changeRel(r.fac, 5, 'respect', 'Respect for your defences');
       siegeTitle = `🏰 The siege of ${c.name} is broken!`;
       extra += `<div class="note good" style="margin-top:8px">🏰 The ${FACS[r.fac].name} assault shattered against your defences. ⭐ +150 Renown.</div>`;
     }
@@ -2500,7 +2590,7 @@ function sendArmy(opt) {
   if (stance('woodelves') !== 'allied' && !(ti.sett && ti.sett.fac === 'woodelves')) {
     const steps = p.path.filter(([x, y]) => regionAt(x, y).id === 'athelloren').length;
     if (steps > 0) {
-      changeRel('woodelves', -10);
+      if (!hasTreaty('woodelves', 'access') && !hasTreaty('woodelves', 'alliance')) changeRel('woodelves', -10, 'trespass', 'Your armies in Athel Loren');
       addReport('world', 'Wood Elves resent your trespass', `🍃 Your army marched ${steps} leagues through Athel Loren. The forest remembers.`, now);
     }
   }
@@ -2531,8 +2621,8 @@ function sendGift(fac) {
   const cost = [g, g, g, g];
   if (!afford(c, cost)) return toast(`Not enough resources in ${c.name} for a worthy gift`, 'bad');
   pay(c, cost);
-  const gd = fac === 'south' ? 22 : 15;
-  changeRel(fac, gd);
+  const gd = giftWorth(fac, fac === 'south' ? 22 : 15);
+  changeRel(fac, gd, 'gift', 'Gifts', null, 40);
   toast(`🎁 Gift sent to the ${FACS[fac].name} (+${gd})`, 'good');
   save(); refreshModal(true); rerender();
 }
@@ -2586,7 +2676,7 @@ function setSpeed(n) {
     else if (m.phase === 'siege') { m.depart = past(m.depart); m.arrive = past(m.arrive); m.siegeStart = past(m.siegeStart); m.siegeEnd = fut(m.siegeEnd); if (m.reliefAt) m.reliefAt = fut(m.reliefAt); }
     else { m.arrive = past(m.arrive); m.returnAt = fut(m.returnAt); }
   });
-  S.incoming.forEach(r => { r.launched = past(r.launched); if (r.phase === 'siege') { r.arrive = past(r.arrive); r.siegeStart = past(r.siegeStart); r.siegeEnd = fut(r.siegeEnd); } else r.arrive = fut(r.arrive); });
+  S.incoming.forEach(r => { r.launched = past(r.launched); if (r.phase === 'siege') { r.arrive = past(r.arrive); r.siegeStart = past(r.siegeStart); r.siegeEnd = fut(r.siegeEnd); if (r.allyRelief) r.allyRelief.at = fut(r.allyRelief.at); } else r.arrive = fut(r.arrive); });
   if (S.nextSiege) S.nextSiege = fut(S.nextSiege);
   if (S.war && S.war.gateEnd) S.war.gateEnd = fut(S.war.gateEnd);
   if (S.nextHoldAtk) S.nextHoldAtk = fut(S.nextHoldAtk);
@@ -2760,6 +2850,8 @@ function newGame(faction, vname) {
   };
   const dk = UI.pickDiff || 'normal';
   S.diff = Object.assign({ preset: dk }, DIFF_PRESETS[dk]);
+  setFacOrder(faction);
+  S.skavenV = 1;
   WORLD = genWorld(S.seed, HOME_POS[faction]);
   const cap = makeCity(HOME_POS[faction].x, HOME_POS[faction].y, vname || FACTIONS[faction].village, true);
   if (faction === 'elves') cap.bld.harbour = 1;
@@ -2834,6 +2926,7 @@ function migrate() {
   initWorld(fresh);
 }
 function normalizeSave() {
+  setFacOrder(S.faction);
   S.trades = S.trades || [];
   S.items = S.items || [];
   fx();
@@ -2850,8 +2943,12 @@ function normalizeSave() {
     S.facsV = 2;
     if (!S.setts.some(s => s.fac === 'cathay')) genNewFactions();
   }
+  if ((S.facsV || 1) < 3) { S.facsV = 3; const added = genOrderFactions(); if (added.length) addReport('world', '🌍 New powers in the Old World', `${added.map(f => FACS[f].icon + ' <b>' + FACS[f].name + '</b>').join(' and ')} now hold their homelands as AI factions. Meet them in 🤝 Diplomacy.`, S.time); }
+  if (S.skavenV === 1) { S.skavenV = 2; ratEightPeaks(); }
+  if (!S.skavenV) { S.skavenV = 2; if (!S.setts.some(t => t.fac === 'skaven') && genSkaven() && (ratEightPeaks(), true)) addReport('alert', '🐀 The Under-Empire stirs', 'The <b>Skaven</b> have revealed themselves: Skavenblight in the Tilean marshes, the Hell Pit in the north, and warrens beneath the World’s Edge Mountains. Expect new warrens to surface near rich cities, and guard your Warpstone.', S.time); }
   S.rel = S.rel || {};
   FAC_ORDER.forEach(f => { if (S.rel[f] == null) S.rel[f] = FACS[f].locked ? -100 : relBaseline(f); });
+  dipMigrate();
   initAIW();
   if (!S.campId) S.campId = Date.now().toString(36) + Math.floor(Math.random() * 1e6).toString(36);
   if (S.victory && !S.end) startEndgame();
@@ -2867,6 +2964,7 @@ function normalizeSave() {
     if (!c.gar) c.gar = {};
     if (!c.auto) c.auto = { mode: 'off', reserve: 0.25 };
   });
+  (S.trades || []).forEach(tr => { if (!Array.isArray(tr.path)) tr.path = (tr.path && Array.isArray(tr.path.path)) ? tr.path.path : []; });
   S.smith = S.smith || {};
   if (S.omen && (!S.war || !S.war.started)) setTimeout(() => { if (S && S.omen) { startWar(); save(); } }, 0);
   if (S.gold == null) S.gold = 200;
@@ -2934,6 +3032,7 @@ function buildHeader() {
   $('hdr').innerHTML = `<div class="hrow">
       <div class="crest">${FACTIONS[S.faction].icon}</div>
       <div class="vn" onclick="openCityPicker()"><div class="t" id="hVname"></div><div class="s" id="hSub"></div></div>
+      <button class="hbtn" id="hDip" onclick="openDip()">🤝</button>
       <button class="hbtn" id="hGold" onclick="openTreasury()">🪙0</button>
       <button class="hbtn" id="hSpeed" onclick="openSettings()">⚡10×</button>
       <button class="hbtn" onclick="openSettings()" aria-label="Settings">⚙️</button>
@@ -3007,6 +3106,7 @@ function updateHeader(now) {
   $('hSub').textContent = `${FACTIONS[S.faction].name} · Day ${gameDay()} · ${waaaghActive() ? '👹 WAAAGH! · ' : aegisActive() ? '🔮 Shield · ' : S.faction === 'empire' && gh < fx().decreeUntilG ? DECREES[fx().decree].icon + ' ' : ''}${S.paused ? '⏸ Paused · ' : ''}${S.peace ? '🕊️ Peace · ' : ''}${pl > 0 ? '🛡️ Protected ' + fmtDur(pl) : S.invasion ? '☠️ Chaos Invasion' : 'Threat ' + roman(threatLvl())}${S.victory ? ' · 🏆' : ''}`;
   $('hSpeed').textContent = '⚡' + sp + '×';
   $('hGold').textContent = '🪙' + fmt(S.gold || 0);
+  { const n = inboxOpen().length, el = $('hDip'); if (el) { const want = '🤝' + (n ? `<span class="hbadge">${n}</span>` : ''); if (el.innerHTML !== want) el.innerHTML = want; } }
   $('hGold').style.color = goldNet() < 0 ? 'var(--red)' : '';
   RES.forEach(r => {
     const cc = r === 'crop' ? cap.gr : cap.wh;
@@ -3242,7 +3342,7 @@ function renderArmy() {
   const c = CUR();
   const b = UI.armyB;
   const net = netCrop(c);
-  let h = troopsPanel(c) + `<div class="segs">${TRAIN_BLD.map(([id, ic, nm]) => `<button class="btn ghost sm ${b === id ? 'on' : ''}" onclick="UI.armyB='${id}';rerender()">${ic} ${nm}${c.trainQ[id].length ? ' •' : ''}</button>`).join('')}<button class="btn ghost sm ${b === 'raids' ? 'on' : ''}" onclick="UI.armyB='raids';rerender()">📋 Raid list${(c.raidList || []).length ? ' (' + c.raidList.length + ')' : ''}</button></div>`;
+  let h = troopsPanel(c) + `<div class="segs">${TRAIN_BLD.map(([id, ic, nm]) => `<button class="btn ghost sm ${b === id ? 'on' : ''}" onclick="UI.armyB='${id}';rerender()">${id === 'stables' && S.faction === 'dwarfs' ? '🚁 Hangar' : ic + ' ' + nm}${c.trainQ[id].length ? ' •' : ''}</button>`).join('')}<button class="btn ghost sm ${b === 'raids' ? 'on' : ''}" onclick="UI.armyB='raids';rerender()">📋 Raid list${(c.raidList || []).length ? ' (' + c.raidList.length + ')' : ''}</button></div>`;
   if (b === 'raids') return h + raidListHTML(c);
   if (c.bld[b] < 1) {
     h += `<div class="panel"><h2>${bldName(b)}</h2><div class="note">${bldIcon(b)} ${esc(c.name)} has no ${bldName(b)} yet. ${esc(BLD_DEF[b].desc)}</div>
@@ -3275,7 +3375,7 @@ function renderArmy() {
     const block = net <= 0 || (u.role === 'Settler' && settlerCap(c) - settlerCount(c) <= 0);
     return `<div class="${locked ? 'locked' : ''}" style="${i ? 'border-top:1px solid #ffffff0d;padding-top:12px;margin-top:12px' : ''}">
       <div class="row"><div class="qicon">${u.icon}</div><div style="flex:1;min-width:0"><b>${u.name}</b><span class="role">${u.ror ? '🏅 Renown' : u.role}</span>${tagChip(u.id, u.role)}${vetBadge(u.id)}
-      <div class="meta">Home ${c.troops[u.id] || 0}${away ? ' · Away ' + away : ''} · ⏳ ${fmtDur(g2r(trainTimeSec(c, u)))} each</div>${unitTag(u.id) !== 'inf' && u.role !== 'Settler' ? `<div class="muted small">${TAG_INFO[unitTag(u.id)].icon} ${TAG_INFO[unitTag(u.id)].desc}</div>` : ''}</div></div>
+      <div class="meta">Home ${c.troops[u.id] || 0}${away ? ' · Away ' + away : ''} · ⏳ ${fmtDur(g2r(trainTimeSec(c, u)))} each</div>${unitTag(u.id) !== 'inf' && u.role !== 'Settler' ? `<div class="muted small">${tagIco(u.id)} ${TAG_INFO[unitTag(u.id)].desc}</div>` : ''}</div></div>
       <div class="ugrid"><div><b>${fmt(uAtt(u))}</b>⚔️ Offense${smithLv(u.id) ? ' ⚒️' + smithLv(u.id) : ''}</div><div><b>${fmt(uDi(u))}</b>🛡️ Def vs Inf</div><div><b>${fmt(uDc(u))}</b>🐎 Def vs Cav</div>
       <div><b>${u.spd}</b>💨 Speed</div><div><b>${u.carry}</b>🎒 Carry</div><div><b>${u.upk}</b>🌾 Upkeep</div></div>
       ${costChips(u.cost)}
@@ -3410,6 +3510,7 @@ function pathPos(path, frac) {
 }
 function mapShow(k) { if (!UI.mapShow) UI.mapShow = { setts: 1, sites: 1, pois: 1, lm: 1 }; return !!UI.mapShow[k]; }
 function toggleShow(k) { mapShow(k); UI.mapShow[k] = UI.mapShow[k] ? 0 : 1; rerender(); requestDraw(); }
+function mapErr(e) { if (!MAPV.errShown) { MAPV.errShown = true; try { console.warn('Map layer skipped:', e); } catch (_) {} } }
 function drawMap() {
   const cv = $('mapCv');
   if (!cv || !S || !WORLD) return;
@@ -3492,6 +3593,7 @@ function drawMap() {
   const now = Date.now();
   const drawRoute = (path, frac, color, icon) => {
     if (!path || path.length < 2) return;
+    if (!Array.isArray(path) || !path.length) return;
     ctx.save();
     ctx.strokeStyle = color; ctx.lineWidth = Math.max(1.5, z / 10); ctx.setLineDash([Math.max(2, z / 3), Math.max(2, z / 4)]);
     ctx.beginPath();
@@ -3505,29 +3607,29 @@ function drawMap() {
       ctx.font = `${Math.round(Math.max(10, z * 0.42))}px serif`; ctx.fillStyle = '#fff'; ctx.fillText(icon, px, py + 1);
     }
   };
-  S.marches.forEach(m => {
+  try { S.marches.forEach(m => {
     const out = m.phase === 'out';
     const frac = out ? (now - m.depart) / Math.max(1, m.arrive - m.depart) : 1 - (now - m.arrive) / Math.max(1, m.returnAt - m.arrive);
     const h = m.heroId ? heroById(m.heroId) : null;
     const icon = m.mode === 'settle' ? '🏕️' : m.phase === 'siege' ? '🏰' : h ? h.icon : m.mode === 'reinforce' ? '🛡️' : out ? '⚔️' : '💰';
     drawRoute(m.path, m.phase === 'siege' ? 1 : frac, m.mode === 'settle' || m.mode === 'reinforce' ? '#86b84f' : '#f2d27e', icon);
     if (m.phase === 'siege') { const px = sxOf(m.tx), py = syOf(m.ty); ctx.save(); ctx.strokeStyle = '#f2d27e'; ctx.lineWidth = 2; ctx.setLineDash([3, 3]); ctx.beginPath(); ctx.arc(px, py, Math.max(10, z * 0.8), 0, Math.PI * 2); ctx.stroke(); ctx.restore(); }
-  });
-  S.incoming.forEach(r => {
+  }); } catch (e) { mapErr(e); }
+  try { S.incoming.forEach(r => {
     if (r.siege && r.phase === 'siege') { const tc = cityById(r.cityId); if (tc) { const px = sxOf(tc.x), py = syOf(tc.y); ctx.save(); ctx.strokeStyle = '#ff5a45'; ctx.lineWidth = 3; ctx.setLineDash([4, 3]); ctx.beginPath(); ctx.arc(px, py, Math.max(12, z * 0.9), 0, Math.PI * 2); ctx.stroke(); ctx.restore(); drawRoute([[tc.x + 0.6, tc.y + 0.6], [tc.x + 0.6, tc.y + 0.6]], 1, '#ff5a45', '🏰'); } return; }
     if (r.siege || raidVisible(r, now)) drawRoute(r.path, (now - r.launched) / Math.max(1, r.arrive - r.launched), '#ff5a45', r.siege ? '🏰' : FACS[r.fac].icon);
-  });
+  }); } catch (e) { mapErr(e); }
   const ghNow = gameHours();
-  (S.aiMarches || []).forEach(m => { if (aiMarchVisible(m, ghNow)) drawRoute(m.path, (ghNow - m.departG) / Math.max(0.01, m.arriveG - m.departG), FACS[m.fac].color, FACS[m.fac].icon); });
+  try { (S.aiMarches || []).forEach(m => { if (aiMarchVisible(m, ghNow)) drawRoute(m.path, (ghNow - m.departG) / Math.max(0.01, m.arriveG - m.departG), FACS[m.fac].color, FACS[m.fac].icon); }); } catch (e) { mapErr(e); }
   if (ov === 'territory' && z >= 3) {
     ctx.save(); ctx.setLineDash([4, 5]); ctx.lineWidth = 1.2; ctx.strokeStyle = '#9fd3ff55';
     S.cities.forEach(c => { ctx.beginPath(); ctx.arc(sxOf(c.x), syOf(c.y), sightR(c) * z, 0, Math.PI * 2); ctx.stroke(); });
     ctx.restore();
   }
-  S.trades.forEach(tr => { const out = tr.phase === 'out'; const frac = out ? (now - tr.depart) / Math.max(1, tr.arrive - tr.depart) : 1 - (now - tr.arrive) / Math.max(1, tr.returnAt - tr.arrive); drawRoute(tr.path, frac, '#7fb6d6', '🛒'); });
+  try { S.trades.forEach(tr => { const out = tr.phase === 'out'; const frac = out ? (now - tr.depart) / Math.max(1, tr.arrive - tr.depart) : 1 - (now - tr.arrive) / Math.max(1, tr.returnAt - tr.arrive); drawRoute(tr.path, frac, '#7fb6d6', '🛒'); }); } catch (e) { mapErr(e); }
   const inView = (x, y) => x >= x0 && x <= x1 && y >= y0 && y <= y1;
   const dot = (px, py, r, fill, stroke, lw) => { ctx.fillStyle = fill; ctx.beginPath(); ctx.arc(px, py, r, 0, Math.PI * 2); ctx.fill(); if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = lw || 1.5; ctx.stroke(); } };
-  if (mapShow('pois')) (S.pois || []).forEach(p => {
+  try { if (mapShow('pois')) (S.pois || []).forEach(p => {
     if (!inView(p.x, p.y)) return;
     const px = sxOf(p.x), py = syOf(p.y);
     if (z < 7) { dot(px, py, 1.6, '#d9b36a'); return; }
@@ -3535,8 +3637,8 @@ function drawMap() {
     ctx.save(); ctx.setLineDash([2, 2]); dot(px, py, rad, '#1a1208e6', '#d9b36a', 1.5); ctx.restore();
     if (z >= 10) { ctx.font = `${Math.round(rad * 1.05)}px serif`; ctx.fillStyle = '#fff'; ctx.fillText(p.art ? '💀' : POI_KINDS[p.kind].icon, px, py + 1); }
     if (z >= 18) { ctx.font = `700 ${Math.round(clamp(z * 0.26, 7, 11))}px sans-serif`; ctx.fillStyle = '#d9b36a'; ctx.fillText('★'.repeat(p.lvl), px, py + rad + 6); }
-  });
-  if (mapShow('setts')) S.setts.forEach(s => {
+  }); } catch (e) { mapErr(e); }
+  try { if (mapShow('setts')) S.setts.forEach(s => {
     if (!inView(s.x, s.y)) return;
     const px = sxOf(s.x), py = syOf(s.y);
     if (z < 7) { if (!s.dead) dot(px, py, s.kind === 'capital' || s.kind === 'citadel' ? 3.2 : 2.2, FACS[s.fac].color, '#000', 0.8); return; }
@@ -3550,8 +3652,8 @@ function drawMap() {
       dot(bx, by, Math.max(6, z * 0.2), '#000');
       ctx.fillStyle = FACS[s.fac].color; ctx.fillText(String(settLvl(s)), bx, by + 0.5);
     }
-  });
-  (S.sites || []).forEach(st => {
+  }); } catch (e) { mapErr(e); }
+  try { (S.sites || []).forEach(st => {
     if (!inView(st.x, st.y)) return;
     const K = SITE_KINDS[st.kind];
     if (!mapShow(K.lm ? 'lm' : 'sites')) return;
@@ -3563,8 +3665,8 @@ function drawMap() {
     if (z >= 18 && !st.owner) { ctx.font = `800 ${Math.round(clamp(z * 0.3, 8, 12))}px sans-serif`; ctx.fillStyle = K.lm ? '#e8c35a' : '#86b84f'; ctx.fillText(String(st.lvl), px + rad * 0.85, py + rad * 0.8); }
     if (K.lm && z >= 16) { ctx.font = `700 ${Math.round(clamp(z * 0.34, 9, 12))}px Palatino, Georgia, serif`; ctx.lineWidth = 3; ctx.strokeStyle = '#000000c0'; ctx.strokeText(K.name, px, py + rad + 9); ctx.fillStyle = '#e8c35a'; ctx.fillText(K.name, px, py + rad + 9); }
     if (st.owner && !K.lm) { const oc = cityById(st.owner); if (oc) { ctx.save(); ctx.strokeStyle = '#f2d27e88'; ctx.lineWidth = 1.5; ctx.setLineDash([2, 3]); ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(sxOf(oc.x), syOf(oc.y)); ctx.stroke(); ctx.restore(); } }
-  });
-  if (mapShow('pois')) S.adventures.forEach(a => {
+  }); } catch (e) { mapErr(e); }
+  try { if (mapShow('pois')) S.adventures.forEach(a => {
     if (!inView(a.x, a.y)) return;
     const px = sxOf(a.x), py = syOf(a.y);
     if (z < 7) { dot(px, py, 1.6, '#f2d27e'); return; }
@@ -3572,9 +3674,9 @@ function drawMap() {
     ctx.save(); ctx.setLineDash([3, 2]); dot(px, py, rad, '#2a1d0ae6', '#f2d27e', 1.5); ctx.restore();
     if (z >= 10) { ctx.font = `${Math.round(rad * 1.1)}px serif`; ctx.fillStyle = '#fff'; ctx.fillText(ADV_KINDS[a.kind].icon, px, py + 1); }
     if (z >= 18) { ctx.font = `700 ${Math.round(clamp(z * 0.26, 7, 11))}px sans-serif`; ctx.fillStyle = '#f2d27e'; ctx.fillText('★'.repeat(a.diff), px, py + rad + 6); }
-  });
+  }); } catch (e) { mapErr(e); }
   const cur = CUR();
-  S.cities.forEach(c => {
+  try { S.cities.forEach(c => {
     const px = sxOf(c.x), py = syOf(c.y), rad = Math.max(z < 7 ? 4 : 8, z * (c.capital ? 0.58 : 0.5));
     dot(px, py, rad, '#3a2810', c.id === cur.id ? '#fff3c4' : '#f2d27e', c.id === cur.id ? 4 : 2.5);
     if (z >= 7) { ctx.font = `${Math.round(rad * 1.15)}px serif`; ctx.fillStyle = '#fff'; ctx.fillText(c.capital ? FACTIONS[S.faction].icon : '🏰', px, py + 1); }
@@ -3583,7 +3685,7 @@ function drawMap() {
       ctx.lineWidth = 3; ctx.strokeStyle = '#000000c0'; ctx.strokeText(c.name, px, py + rad + 9);
       ctx.fillStyle = '#f2d27e'; ctx.fillText(c.name, px, py + rad + 9);
     }
-  });
+  }); } catch (e) { mapErr(e); }
   if (UI.sel) {
     const px = sxOf(UI.sel.x) - z / 2, py = syOf(UI.sel.y) - z / 2;
     ctx.strokeStyle = '#f2d27e'; ctx.lineWidth = 2; ctx.strokeRect(px + 1, py + 1, Math.max(4, z - 2), Math.max(4, z - 2));
@@ -3755,17 +3857,7 @@ function renderMap() {
       <div class="meta">${o ? '🏳️ Held by ' + esc(o.name) : 'Lv ' + st.lvl + ' · guarded'} · ${esc(regionAt(st.x, st.y).name)} · ${d.toFixed(0)} tiles</div></div><span class="muted">›</span></div>`;
   }).join('') + '</div>';
   h += powersPanelHTML();
-  h += `<div class="panel"><h2>Factions</h2>` + FAC_ORDER.map(f => {
-    const F = FACS[f];
-    const n = S.setts.filter(s => s.fac === f && !s.dead).length;
-    const g = giftCost();
-    return `<div class="facrow"><div class="row"><span style="font-size:22px">${F.icon}</span><div style="flex:1;min-width:0"><b style="color:${F.color}">${F.name}</b> ${stanceChip(f)}
-        <div class="meta">${n} settlement${n === 1 ? '' : 's'}${f === 'dwarfs' && S.grudges ? ' · 📕 ' + S.grudges + ' grudge' + (S.grudges > 1 ? 's' : '') : ''}</div></div>
-        ${F.locked ? '<span class="muted small">No diplomacy</span>' : `<div style="display:flex;flex-direction:column;gap:4px"><button class="btn ghost sm" data-cost="${[g, g, g, g].join(',')}" data-block="0" onclick="sendGift('${f}')">🎁 Gift</button><button class="btn ghost sm" ${S.gold >= goldGiftCost() ? '' : 'disabled'} onclick="sendGoldGift('${f}')">🪙 ${fmt(goldGiftCost())}</button></div>`}</div>
-      ${!F.locked && stance(f) !== 'war' && inciteTarget(f) ? `<button class="btn ghost sm full" style="margin-top:6px" ${S.gold >= inciteCost() && !incited(f) ? '' : 'disabled'} onclick="incite('${f}')">🗡️ ${incited(f) ? 'Already fighting for you' : `Pay 🪙${fmt(inciteCost())} to set them on the ${FACS[inciteTarget(f)].name}`}</button>` : ''}
-      ${F.locked ? '' : `<div class="relbar"><i style="left:calc(${(S.rel[f] + 100) / 2}% - 2px)"></i></div><div class="meta" style="display:flex;justify-content:space-between"><span>War</span><span>${Math.round(S.rel[f])}</span><span>Allied</span></div>`}
-      <div class="muted small" style="margin-top:4px">${F.trait}</div></div>`;
-  }).join('') + `<div class="muted small" style="margin-top:6px">🎁 A gift costs ${fmt(giftCost())} of each resource from ${esc(cur.name)} (+15 relations). Allies send tribute to your capital every 12 game hours.</div></div>`;
+  h += factionsPanelHTML();
 
   const list = S.setts.filter(s => !s.dead).sort((a, b) => Math.hypot(a.x - cur.x, a.y - cur.y) - Math.hypot(b.x - cur.x, b.y - cur.y)).slice(0, 24).map(s => ({ s, c: pathFrom(cur, s.x, s.y).cost })).sort((a, b) => a.c - b.c).slice(0, 20);
   h += `<div class="panel"><h2>Nearest to ${esc(cur.name)}</h2>` + list.map(({ s, c }) => `<div class="listrow" onclick="openSett(${s.id})"><div class="qicon" style="border-color:${FACS[s.fac].color}">${settIcon(s)}</div>
@@ -3842,6 +3934,7 @@ function settSheet() {
   if (s.sabG && gameHours() < s.sabG) h += `<div class="note good" style="margin-top:6px">💥 Walls sabotaged: −${s.sabW} levels for ${fmtDur(g2r((s.sabG - gameHours()) * 3600))}.</div>`;
   if (s.champ) h += `<div class="note bad" style="margin-top:6px">${CHAMPS[s.champ].icon} <b>${esc(s.name)}</b>, ${CHAMPS[s.champ].title}.<br>${CHAMPS[s.champ].trait}<br>Win an <b>Assault</b> to slay ${s.champ === 'archaon' ? 'him and save the Old World' : 'him'}.</div>`;
   h += settDamageHTML(s);
+  if (!F.locked && treatyList(s.fac).length) h += `<div class="note bad" style="margin-top:6px">📜 You have treaties with the ${F.name} (${treatyList(s.fac).map(k => TREATIES[k].icon + ' ' + TREATIES[k].name).join(', ')}). Attacking them breaks every treaty and damages your reputation with all factions.</div>`;
   const sgOk = siegeable(s);
   if (UI.sendMode === 'siege' && !sgOk) UI.sendMode = 'attack';
   h += `<h4>Send army</h4><div class="mode"><button class="btn ghost sm ${UI.sendMode === 'raid' ? 'on' : ''}" onclick="setMode('raid')">🏹 Raid</button><button class="btn ghost sm ${UI.sendMode === 'attack' ? 'on' : ''}" onclick="setMode('attack')">⚔️ Assault</button>${sgOk ? `<button class="btn ghost sm ${UI.sendMode === 'siege' ? 'on' : ''}" onclick="setMode('siege')">🏰 Siege</button>` : ''}</div>
@@ -4032,12 +4125,14 @@ const RELICS = {
 const ROUTES = {
   empire:     { key: 'iceroad', icon: '❄️', name: 'Ice Road of Kislev', reg: ['kislev'], cost: 3, how: 'Open while you are not at war with Kislev. Allied or neutral, the Tzarina lets your armies march her frozen roads north — and Kislevite lancers join your Citadel assaults.' },
   elves:      { key: 'phoenix', icon: '🔥', name: 'Phoenix Gate', reg: ['wastes', 'kurgan'], cost: 3, how: 'Opens when you hold any Landmark, or perform the Gate Rite at an Academy (Lv 5). A Waystone portal carries your armies from Ulthuan to the edge of the Wastes.' },
-  greenskins: { key: 'underway', icon: '🕳️', name: 'The Underway', reg: ['kurgan', 'worldsedge'], cost: 6, how: 'Opens when you hold an Old Dwarf Mine ⛏️ — your gobbos dig into the old Dwarf tunnels running north under the mountains. A big Waaagh also drags extra Orc warbands into Citadel fights.' }
+  greenskins: { key: 'underway', icon: '🕳️', name: 'The Underway', reg: ['kurgan', 'worldsedge'], cost: 6, how: 'Opens when you hold an Old Dwarf Mine ⛏️ — your gobbos dig into the old Dwarf tunnels running north under the mountains. A big Waaagh also drags extra Orc warbands into Citadel fights.' },
+  dwarfs: { key: 'ungdrin', icon: '🕳️', name: 'Ungdrin Ankor', reg: ['kurgan', 'worldsedge'], cost: 3, how: 'Opens when you hold Karak Eight Peaks or an Old Dwarf Mine ⛏️ — the ancient Dwarf Underway runs north beneath the mountains.' }
 };
 const VOICE = {
   empire: { who: '📜 The Grand Theogonist', start: 'Sigmar’s light dims in the north. Seal the four Rifts, slay the Heralds and burn the cursed relics — every victory loosens the Dread Warlord’s grip on his Citadel.', obj: 'Sigmar be praised! The Citadel’s defenders tremble.', art: 'Bring the relic to a temple of Sigmar, and let holy fire unmake it.', done: 'The Citadel stands naked before us. March, and end this.' },
   elves: { who: '📜 Teclis', start: 'The Winds of Magic churn. Four Rifts feed the Citadel, four Heralds guard its gates, and three relics anchor its power. Undo them, and the Dread Warlord’s fortress will crack.', obj: 'Well struck. The weave of Chaos frays.', art: 'Carry it to a shrine of Asuryan; only sacred flame can destroy it.', done: 'Its wards are broken. Now, while the Winds favour us.' },
-  greenskins: { who: '📜 Grimgor Ironhide', start: 'Dem Chaos gitz fink dey’re ard. Smash da four big glowy holes, krump da four Herald gitz an’ bust up da shiny fings. Den we krump da big castle proppa.', obj: 'Dat’s one less! Da castle’s gettin’ wobbly!', art: 'Take da shiny fing to da big shrine an’ smash it good.', done: 'Da castle’s all soft now. WAAAGH!' }
+  greenskins: { who: '📜 Grimgor Ironhide', start: 'Dem Chaos gitz fink dey’re ard. Smash da four big glowy holes, krump da four Herald gitz an’ bust up da shiny fings. Den we krump da big castle proppa.', obj: 'Dat’s one less! Da castle’s gettin’ wobbly!', art: 'Take da shiny fing to da big shrine an’ smash it good.', done: 'Da castle’s all soft now. WAAAGH!' },
+  dwarfs: { who: '📜 The High King', start: 'The Book of Grudges grows heavy with the deeds of Chaos. Close the four Rifts, slay the Heralds and break the cursed relics on the anvil — then we march on the Citadel and settle the oldest grudge of all.', obj: 'Another grudge struck from the Book. Their fortress weakens.', art: 'Bring it to the Shrine of the Ancestors and let the runesmiths unmake it.', done: 'Every grudge but one is settled. Now we take the Citadel.' }
 };
 function warState() { if (!S.war) S.war = { started: false, rifts: {}, art: {}, heralds: {}, gate: false, gateEnd: null, routeWas: false }; return S.war; }
 function citadelWeak() {
@@ -4117,6 +4212,7 @@ function routeUnlocked() {
   if (S.faction === 'empire') return !FACS.kislev.locked && stance('kislev') !== 'war' && facSetts('kislev').length > 0;
   if (S.faction === 'elves') return !!W.gate || ownedSites().some(st => SITE_KINDS[st.kind].lm);
   if (S.faction === 'greenskins') return ownedSites('mine').length > 0;
+  if (S.faction === 'dwarfs') return ownedSites('mine').length > 0 || ownedSites('lm_eightpeaks').length > 0;
   return false;
 }
 function routeExit() {
@@ -4216,7 +4312,7 @@ function warSheet() {
     if (open && W.exit) h += `<button class="btn ghost full" onclick="warShow(${W.exit.x},${W.exit.y})">📍 Show where the road ends</button>`;
   }
   const allies = FAC_ORDER.filter(f => !FACS[f].locked && stance(f) === 'allied');
-  h += `<h4>🤝 The Grand Alliance</h4><div class="muted small">Every faction allied with you sends troops to fight beside you whenever you assault the Citadel or a Chaos Champion (about half of its strongest army).${S.faction === 'empire' ? ' The Ice Road also brings Kislevite troops while it is open.' : S.faction === 'greenskins' ? ' During a Waaagh, rival Orc warbands join in too.' : ''}<br>${allies.length ? 'Allied now: ' + allies.map(f => FACS[f].icon + ' ' + FACS[f].name).join(', ') : 'No allies yet — improve relations in Diplomacy (gifts, gold, envoys).'}</div>`;
+  h += `<h4>🤝 The Grand Alliance</h4><div class="muted small">Every faction allied with you sends troops to fight beside you whenever you assault the Citadel or a Chaos Champion (about half of its strongest army).${S.faction === 'empire' ? ' The Ice Road also brings Kislevite troops while it is open.' : S.faction === 'greenskins' ? ' During a Waaagh, rival Orc warbands join in too.' : ''}<br>${allies.length ? 'Allied now: ' + allies.map(f => FACS[f].icon + ' ' + FACS[f].name).join(', ') : 'No allies yet — win their favour and sign a ⚔️ Military alliance in 🤝 Diplomacy.'}</div>`;
   return h;
 }
 
@@ -4299,6 +4395,615 @@ function autoPanelHTML(c) {
     <div class="muted small" style="margin-top:4px">${desc}${a.mode !== 'off' ? ' Crop fields come first when food runs low, and a bigger Warehouse or Granary when storage is full. Pauses during a siege; your own queued upgrades and build plans always come first.' : ''}</div>
     ${a.mode !== 'off' ? `<div class="row" style="margin-top:6px;gap:6px;align-items:center"><span class="muted small">Keep in reserve:</span>${[0, 0.25, 0.5].map(v => `<button class="btn ghost sm ${Math.abs((a.reserve || 0) - v) < 0.01 ? 'on' : ''}" onclick="setAuto(${c.id},'reserve',${v})">${v * 100}%</button>`).join('')}</div>` : ''}
     ${S.cities.length > 1 ? `<button class="btn ghost sm full" style="margin-top:6px" onclick="autoAll()">Apply to all ${S.cities.length} cities</button>` : ''}</div>`;
+}
+
+
+/* =========================================================
+   DIPLOMACY — attitudes, personalities, treaties
+   ========================================================= */
+const TREATIES = {
+  nap:      { icon: '🤝', name: 'Non-aggression pact', req: -30, floor: -60, gold: 1, desc: 'They will not raid, besiege or attack your holdings, even if they dislike you.' },
+  trade:    { icon: '💰', name: 'Trade agreement', req: 0, floor: -25, gold: 1, desc: '+3 gold per game hour (Cathay +6), better barter rates, and goodwill that slowly grows the longer it lasts.' },
+  access:   { icon: '🛤️', name: 'Military access', req: 10, floor: -10, gold: 1, desc: 'Your armies cross their lands without angering them, and you see their armies on the map.' },
+  defense:  { icon: '🛡️', name: 'Defensive alliance', req: 30, floor: 5, gold: 1.5, desc: 'When one of your cities is besieged near their lands, they send an army to break the siege.' },
+  alliance: { icon: '⚔️', name: 'Military alliance', req: 50, floor: 20, gold: 2, desc: 'Tribute every 12 game hours, they go to war with your enemies, defend your besieged cities and join the Grand Alliance against Chaos.' }
+};
+const TREATY_KEYS = ['nap', 'trade', 'access', 'defense', 'alliance'];
+const GOLD_LOVERS = ['south', 'vampcoast', 'ogres'];
+const CHAOS_FOES = ['kislev', 'lizardmen', 'bretonnia', 'dwarfs', 'cathay', 'imperials', 'asur'];
+const PERSONA = {
+  bretonnia: '⚜️ Honourable knights: they frown on raids against peaceful folk and admire victories over Greenskins and Beastmen. They respect anyone who fights Chaos.',
+  dwarfs: '📕 They never forget a wrong: each Grudge stays until you pay reparations in gold. They admire victories over Greenskins and respect anyone who fights Chaos.',
+  woodelves: '🌳 Guardians of Athel Loren: trespassers anger them (unless you have Military access), and every Beastman you slay pleases them.',
+  kislev: '❄️ The bulwark against Chaos: they respect every blow you strike against it.',
+  lizardmen: '🦎 Servants of the Old Ones: they respect every blow you strike against Chaos.',
+  cathay: '🐉 They value trade above all: a trade agreement wins twice the goodwill. They respect anyone who fights Chaos.',
+  orcs: '💪 They respect only strength: the mightier your realm compared with theirs, the friendlier they are.',
+  norsca: '🐺 They respect raiders: every successful raid you make impresses them.',
+  south: '💰 Merchants: gifts of gold count 50% more.',
+  vampcoast: '🏴‍☠️ Pirates: gifts of gold count 50% more.',
+  ogres: '🍖 Mercenaries at heart: gifts of gold count 50% more.',
+  vampires: '🦇 They grow colder towards the living every day.',
+  tombkings: '🏺 They never forgive the desecration of their tombs.',
+  darkelves: '🗡️ Cruel and treacherous, and bitter enemies of the High Elves.',
+  chaosdwarfs: '🔥 Slavers who trust no one.',
+  imperials: '🦅 Sigmar’s heirs: they respect anyone who fights Chaos, and remember who stood with them.',
+  asur: '🦢 Proud and aloof: they respect anyone who fights Chaos, and loathe the Dark Elves and their friends.',
+  skaven: '🐀 Treacherous ratmen: a treaty with them lasts only while you look strong. They covet Warpstone and attack whoever holds it.'
+};
+function dipState(f) { if (!S.dip) S.dip = { rep: 0, f: {} }; if (!S.dip.f[f]) S.dip.f[f] = { mods: {}, tr: {}, cd: {} }; return S.dip.f[f]; }
+function hasTreaty(f, k) { const D = S.dip && S.dip.f[f]; return !!(D && D.tr[k] != null); }
+function treatyList(f) { const D = S.dip && S.dip.f[f]; return D ? TREATY_KEYS.filter(k => D.tr[k] != null) : []; }
+function addMod(f, key, d, label, decay, cap) {
+  const D = dipState(f), m = D.mods[key] || (D.mods[key] = { v: 0, d: decay == null ? 6 : decay, l: label || MOD_LABEL[key] || (d >= 0 ? 'Goodwill' : 'Grievances') });
+  m.v += d;
+  if (cap) m.v = clamp(m.v, -cap, cap);
+  if (decay != null) m.d = decay;
+  if (label) m.l = label;
+}
+const MOD_LABEL = { past: 'Past dealings', goodwill: 'Goodwill', grievance: 'Grievances', betrayal: 'You broke treaties with them', ended: 'You ended a treaty', insulted: 'Your poor offer insulted them' };
+function playerStrength() { return S.cities.reduce((a, c) => a + (c.bld.keep + c.fields.reduce((x, f) => x + f.lvl, 0) / c.fields.length) * (c.capital ? 3 : 1), 0); }
+function attitudeParts(f) {
+  const D = dipState(f), P = [], W = S.war;
+  const base = relBaseline(f);
+  if (f === 'dwarfs' && S.grudges) { P.push({ l: 'Natural attitude', v: base + 15 * S.grudges }); P.push({ l: `📕 Book of Grudges (${S.grudges})`, v: -15 * S.grudges }); }
+  else P.push({ l: f === 'vampires' ? 'Natural attitude (grows colder daily)' : f === 'tombkings' && S.tombAnger ? 'Natural attitude (incl. desecrations)' : 'Natural attitude', v: base });
+  Object.keys(D.mods).forEach(k => { const m = D.mods[k]; if (Math.abs(m.v) >= 0.5) P.push({ l: m.l, v: m.v, fade: m.d > 0, d: m.d }); });
+  // shared enemies / allied with their enemy
+  let sh = 0; const shN = [];
+  FAC_ORDER.forEach(e => { if (e === f || FACS[e].locked && e !== 'chaos') return; if (e === 'chaos' ? (stance(f) !== 'war' && CHAOS_FOES.includes(f)) : (stance(e) === 'war' && aiHostile(f, e) && !(hasTreaty(f, 'alliance')))) { if (e !== 'chaos') { sh += 10; shN.push(FACS[e].name); } } });
+  if (sh) P.push({ l: `Shared enemy: ${shN.slice(0, 2).join(', ')}${shN.length > 2 ? '…' : ''}`, v: Math.min(10, sh / 2) });
+  let en = 0; const enN = [];
+  FAC_ORDER.forEach(a => { if (a !== f && hasTreaty(a, 'alliance') && aiHostile(f, a)) { en += 10; enN.push(FACS[a].name); } });
+  if (en) P.push({ l: `You are allied with their enemy: ${enN.slice(0, 2).join(', ')}`, v: -Math.min(20, en) });
+  // treaties
+  const tl = treatyList(f);
+  if (tl.length) P.push({ l: `Treaties with you (${tl.length})`, v: Math.min(8, 2 * tl.length) + (tl.includes('alliance') ? 4 : 0) });
+  if (hasTreaty(f, 'trade')) { const days = (gameHours() - D.tr.trade) / 24, mult = f === 'cathay' ? 2 : 1; P.push({ l: f === 'cathay' ? 'Trade agreement (Cathay values it doubly)' : 'Trade agreement', v: Math.min(10 * mult, Math.floor(days * 0.5) * mult) }); }
+  // personalities (dynamic)
+  if (CHAOS_FOES.includes(f)) { const v = Math.min(15, 3 * ((W && citadelWeak().n) || 0) + (S.victory ? 5 : 0) + ((S.end && S.end.slain || []).length)); if (v) P.push({ l: 'You fight Chaos', v }); }
+  if (f === 'orcs') { const ts = facStrength('orcs') || 1, ps = playerStrength(); P.push({ l: 'Respect for your strength', v: Math.round(clamp((ps / ts - 1) * 20, -20, 25)) }); }
+  if (S.dip.rep) P.push({ l: 'Your reputation for keeping treaties', v: Math.round(S.dip.rep) });
+  return P;
+}
+function attitude(f) { return clamp(attitudeParts(f).reduce((a, p) => a + p.v, 0), -100, 100); }
+function personaOnWin(c, m) {
+  if (FACS[c.fac] && (c.fac === 'orcs' || c.fac === 'beastmen')) {
+    if (!FACS.bretonnia.locked) changeRel('bretonnia', 2, 'honour', 'Your victories over Greenskins and Beastmen', 2, 20);
+    if (c.fac === 'orcs') changeRel('dwarfs', 2, 'greenskins', 'Your victories over Greenskins', 2, 20);
+    if (c.fac === 'beastmen') changeRel('woodelves', 2, 'beasts', 'Beastmen you slew', 2, 20);
+  }
+  if (m.mode === 'raid') {
+    changeRel('norsca', 1, 'raider', 'Your successful raids impress them', 1, 20);
+    if (!FACS[c.fac].locked && stance(c.fac) !== 'war' && c.fac !== 'bretonnia') changeRel('bretonnia', -3, 'dishonour', 'Your raids on peaceful folk', 2, 30);
+  }
+}
+function dipMigrate() {
+  if (S.dip && S.dip.v === 2) return;
+  S.dip = { v: 2, rep: 0, f: {} };
+  const gh = gameHours();
+  FAC_ORDER.forEach(f => {
+    if (FACS[f].locked) return;
+    const D = dipState(f), r = S.rel[f], b = relBaseline(f);
+    if (Math.abs(r - b) >= 0.5) D.mods.past = { v: r - b, d: 6, l: 'Past dealings' };
+    if (r >= 50) D.tr.alliance = gh;
+    D.st = r >= 50 ? 'allied' : r <= -50 ? 'war' : 'neutral';
+  });
+  FAC_ORDER.forEach(f => relRefresh(f, true));
+}
+function dipTick(dtH) {
+  if (!S.dip) dipMigrate();
+  const dd = dtH / 24;
+  S.dip.rep = Math.min(0, (S.dip.rep || 0) + 0.5 * dd);
+  dipMsgTick(dd);
+  FAC_ORDER.forEach(f => {
+    if (FACS[f].locked) { S.rel[f] = -100; return; }
+    const D = dipState(f), keep = treatyList(f).length > 0;
+    Object.keys(D.mods).forEach(k => { const m = D.mods[k]; if (!m.d) return; const n = m.v - Math.sign(m.v) * Math.min(Math.abs(m.v), m.d * dd * (m.v > 0 && keep ? 0.5 : 1)); if (Math.abs(n) < 0.5) delete D.mods[k]; else m.v = n; });
+    if (D.until) Object.keys(D.until).forEach(k => { if (gameHours() >= D.until[k]) { delete D.until[k]; delete D.tr[k]; addReport('world', `${FACS[f].icon} The truce with the ${FACS[f].name} has ended`, `Your temporary ${TREATIES[k].name} has run out.${attitude(f) <= -50 ? ' They are hostile again — expect raids.' : ''}`, S.time); } });
+    if (D.ws) D.ws -= Math.sign(D.ws) * Math.min(Math.abs(D.ws), 1 * dd);
+    const a = attitude(f);
+    treatyList(f).forEach(k => { if (D.until && D.until[k]) return; if (a < TREATIES[k].floor) { delete D.tr[k]; addMod(f, 'ended', -5, 'Treaty ended', 1); addReport('world', `${FACS[f].icon} The ${FACS[f].name} end the ${TREATIES[k].name}`, `Relations have soured too far (attitude ${Math.round(a)}). The ${FACS[f].name} have torn up your ${TREATIES[k].icon} ${TREATIES[k].name}.`, S.time); } });
+    relRefresh(f);
+  });
+}
+function tradeIncome() { return S.dip ? FAC_ORDER.reduce((a, f) => a + (hasTreaty(f, 'trade') && !(aiw(f).fallen) ? (f === 'cathay' ? 6 : 3) : 0), 0) : 0; }
+function treatyGold(f, k) { return Math.round((200 + 10 * gameDay()) * TREATIES[k].gold * warPrice()); }
+function treatyChance(f, k, sweet) {
+  const a = S.rel[f], T = TREATIES[k];
+  if (a < T.req - 20) return 0;
+  return clamp(0.25 + (a - T.req) / 60 + (sweet || 0) * 0.12 + (S.dip.rep || 0) / 100, 0, 0.9);
+}
+function signTreaty(f, k, note) {
+  const D = dipState(f);
+  D.tr[k] = gameHours();
+  if (D.until) delete D.until[k];
+  if (k === 'alliance') { if (D.tr.nap == null) D.tr.nap = gameHours(); if (D.until) delete D.until.nap; }
+  relRefresh(f);
+  addReport('world', `${TREATIES[k].icon} ${TREATIES[k].name} with the ${FACS[f].name}`, `${note || 'The treaty is signed.'} ${TREATIES[k].desc}`, S.time);
+  toast(`${TREATIES[k].icon} ${TREATIES[k].name} signed with the ${FACS[f].name}`, 'good');
+}
+function proposeTreaty(f, k) {
+  simulate(Date.now());
+  const D = dipState(f), sw = (UI.dipSweet && UI.dipSweet[f + k]) || 0, gold = sw * treatyGold(f, k);
+  if (hasTreaty(f, k)) return;
+  if ((D.cd[k] || 0) > gameHours()) return toast('They will not discuss this again so soon', 'bad');
+  if (stance(f) === 'war' && k !== 'nap') return toast('They are at war with you — offer a Non-aggression pact first', 'bad');
+  if (S.gold < gold) return toast('Not enough gold for that offer', 'bad');
+  const p = treatyChance(f, k, sw);
+  if (p <= 0) return toast('They would never accept — improve relations first', 'bad');
+  if (Math.random() < p) {
+    S.gold -= gold;
+    signTreaty(f, k, gold ? `Your gift of ${fmt(gold)} gold sealed the deal.` : 'They accepted your offer.');
+  } else {
+    D.cd[k] = gameHours() + 24;
+    if (p < 0.3) changeRel(f, -3, 'insulted', null, 2);
+    addReport('world', `${FACS[f].icon} The ${FACS[f].name} refuse`, `They rejected your ${TREATIES[k].icon} ${TREATIES[k].name}. You can ask again in a game day.`, Date.now());
+    toast(`${FACS[f].icon} The ${FACS[f].name} refused`, 'bad');
+  }
+  save(); refreshModal(true); rerender();
+}
+function cancelTreaty(f, k) {
+  const D = dipState(f);
+  if (!hasTreaty(f, k)) return;
+  if (UI.dipConfirm !== f + k) { UI.dipConfirm = f + k; refreshModal(true); return; }
+  UI.dipConfirm = null;
+  simulate(Date.now());
+  const early = gameHours() - D.tr[k] < 120;
+  delete D.tr[k];
+  if (k === 'nap') delete D.tr.alliance;
+  if (early) { addMod(f, 'betrayal', -20, null, 1); S.dip.rep = Math.max(-60, (S.dip.rep || 0) - 5); }
+  else addMod(f, 'ended', -5, null, 1);
+  relRefresh(f);
+  addReport('world', `${TREATIES[k].icon} You ended the ${TREATIES[k].name} with the ${FACS[f].name}`, early ? 'Breaking a treaty within 5 game days of signing it angered them and hurt your reputation.' : 'They take it calmly.', Date.now());
+  save(); refreshModal(true); rerender();
+}
+function breakTreaties(f) {
+  const tl = treatyList(f);
+  if (!tl.length) return '';
+  const D = dipState(f);
+  tl.forEach(k => delete D.tr[k]);
+  addMod(f, 'betrayal', -40, null, 1);
+  S.dip.rep = Math.max(-60, (S.dip.rep || 0) - 15);
+  FAC_ORDER.forEach(x => { if (!FACS[x].locked) relRefresh(x, x !== f); });
+  addReport('alert', `📜 You betrayed the ${FACS[f].name}`, `By attacking them you broke ${tl.map(k => TREATIES[k].icon + ' ' + TREATIES[k].name).join(', ')}. Every faction now trusts you less (reputation ${Math.round(S.dip.rep)}).`, S.time);
+  return `<div class="note bad" style="margin-top:8px">📜 This attack broke your treaties with the ${FACS[f].name}. Your reputation suffers with every faction.</div>`;
+}
+function giftWorth(f, base) { const m = S.dip && S.dip.f[f] && S.dip.f[f].mods.gift; const v = m ? Math.max(0, m.v) : 0; return Math.max(1, Math.round(base * Math.max(0.2, 1 - v / 50))); }
+function reparationCost() { return Math.round(1000 * warPrice()); }
+function payReparations() {
+  simulate(Date.now());
+  if (!S.grudges) return;
+  const g = reparationCost();
+  if (S.gold < g) return toast('Not enough gold', 'bad');
+  S.gold -= g; S.grudges--;
+  relRefresh('dwarfs');
+  addReport('world', '📕 A Grudge is struck out', `The Dwarfs accept ${fmt(g)} gold in reparations and strike one entry from the Book of Grudges (${S.grudges} left).`, Date.now());
+  toast('📕 Grudge settled', 'good');
+  save(); refreshModal(true); rerender();
+}
+/* --- defensive allies break sieges --- */
+function reliefPartner(c) {
+  let best = null, bd = 1e9;
+  FAC_ORDER.forEach(f => {
+    if (FACS[f].locked || !(hasTreaty(f, 'defense') || hasTreaty(f, 'alliance'))) return;
+    facSetts(f).filter(x => !special(x) && sumObj(x.army) > 10).forEach(x => { const d = Math.hypot(x.x - c.x, x.y - c.y); if (d <= 32 && d < bd) { bd = d; best = x; } });
+  });
+  return best;
+}
+function planAllyRelief(r, c, t) {
+  const src = reliefPartner(c);
+  if (!src) return;
+  r.allyRelief = { fac: src.fac, sid: src.id, at: r.siegeStart + (r.siegeEnd - r.siegeStart) * rand(0.25, 0.6) };
+  addReport('world', `${FACS[src.fac].icon} The ${FACS[src.fac].name} march to your aid`, `Honouring your treaty, ${esc(src.name)} is sending an army to break the siege of ${esc(c.name)}. It should arrive in about ${fmtDur(r.allyRelief.at - t)}.`, t);
+}
+function allyReliefBattle(id, t) {
+  const r = S.incoming.find(x => x.id === id);
+  if (!r || !r.allyRelief || r.phase !== 'siege') return;
+  const ar = r.allyRelief; delete r.allyRelief;
+  const src = S.setts.find(x => x.id === ar.sid && !x.dead), c = cityById(r.cityId);
+  if (!src || !c || !(hasTreaty(ar.fac, 'defense') || hasTreaty(ar.fac, 'alliance'))) return;
+  const army = {};
+  for (const k in src.army) { const n = Math.floor(src.army[k] * 0.5); if (n > 0) { army[k] = n; src.army[k] -= n; } }
+  if (sumObj(army) < 5) return;
+  const atk = Object.keys(army).map(k => ({ key: k, n: army[k], att: FOES[k].att, cls: FOES[k].cls }));
+  const res = battle(atk, hostRows(r), { mode: 'raid', wallMult: 1, baseDef: 0, luck: rand(0.9, 1.1), defMult: 1 + aiKit(r, t).pal, wall: 0 });
+  atk.forEach(a => { src.army[a.key] = (src.army[a.key] || 0) + a.n - Math.min(a.n, Math.round(a.n * res.attLoss)); });
+  for (const k in r.army) { r.army[k] -= Math.min(r.army[k], Math.round(r.army[k] * res.defLoss)); if (r.army[k] <= 0) delete r.army[k]; }
+  if (res.attWin || !sumObj(r.army)) {
+    endSiege(r, 'ally', t);
+    S.stats.siegesBroken = (S.stats.siegesBroken || 0) + 1;
+    addReport('win', `${FACS[ar.fac].icon} The ${FACS[ar.fac].name} break the siege of ${c.name}!`, `Your treaty partner’s army from ${esc(src.name)} drove off the ${FACS[r.fac].name} besiegers (${fmt(res.A)} vs ${fmt(res.D)}).`, t);
+    toast(`${FACS[ar.fac].icon} Allies broke the siege of ${c.name}!`, 'good');
+  } else {
+    addReport('loss', `${FACS[ar.fac].icon} Allied relief beaten at ${c.name}`, `The ${FACS[ar.fac].name} attacked the besiegers but were driven back (${fmt(res.A)} vs ${fmt(res.D)}). The besiegers took losses — the siege goes on.`, t);
+  }
+  UI.dirty = true;
+}
+/* --- Diplomacy screen --- */
+function openDip(tab) { UI.dipTab = tab || (inboxOpen().length ? 'inbox' : UI.dipTab || 'factions'); UI.dipConfirm = null; openModal(dipSheet); }
+function openFac(f) { UI.dipFac = f; UI.dipConfirm = null; openModal(facSheet); }
+function relBarHTML(v) { return `<div class="relbar"><i style="left:calc(${(v + 100) / 2}% - 2px)"></i></div><div class="meta" style="display:flex;justify-content:space-between"><span>−100</span><span>${v <= -50 ? 'War' : v >= 50 ? 'Alliance possible' : 'Neutral'} · <b>${Math.round(v)}</b></span><span>+100</span></div>`; }
+function facRowHTML(f) {
+  const F = FACS[f], tl = treatyList(f), n = facSetts(f).length;
+  return `<div class="listrow" onclick="openFac('${f}')"><div class="qicon" style="border-color:${F.color}">${F.icon}</div><div style="flex:1;min-width:0"><b style="color:${F.color}">${F.name}</b> ${stanceChip(f)}<div class="meta">${aiw(f).fallen ? 'Destroyed' : n + ' holding' + (n === 1 ? '' : 's')}${f === 'dwarfs' && S.grudges ? ' · 📕 ' + S.grudges : ''}${tl.length ? ' · ' + tl.map(k => TREATIES[k].icon).join('') : ''}</div></div><b class="${S.rel[f] >= 0 ? 'pos' : 'neg'}">${S.rel[f] > 0 ? '+' : ''}${Math.round(S.rel[f])}</b><span class="muted">›</span></div>`;
+}
+function factionsPanelHTML() {
+  const list = FAC_ORDER.filter(f => !FACS[f].locked).sort((a, b) => S.rel[b] - S.rel[a]);
+  return `<div class="panel"><h2>Factions</h2>${list.map(facRowHTML).join('')}<div class="muted small" style="margin-top:6px">🐐 Beastmen and 🔥 Chaos never negotiate.</div><button class="btn full" style="margin-top:8px" onclick="openDip()">🤝 Open Diplomacy</button></div>`;
+}
+function dipSheet() {
+  const tab = UI.dipTab;
+  let h = `<div class="grab"></div><div class="shead"><div class="qicon">🤝</div><div><h3 style="margin:0">Diplomacy</h3><div class="desc">Reputation ${Math.round(S.dip.rep || 0)} · ${FAC_ORDER.filter(f => stance(f) === 'allied').length} allies · ${FAC_ORDER.filter(f => !FACS[f].locked && stance(f) === 'war').length} at war</div></div><button class="hbtn x" onclick="closeModal()">✕</button></div>`;
+  h += `<div class="segs">${[['inbox', `📨 Inbox${inboxOpen().length ? ' (' + inboxOpen().length + ')' : ''}`], ['factions', '🏳️ Factions'], ['treaties', '📜 Treaties']].map(([k, l]) => `<button class="btn ghost sm ${tab === k ? 'on' : ''}" onclick="UI.dipTab='${k}';refreshModal(true)">${l}</button>`).join('')}</div>`;
+  if (tab === 'inbox') return h + inboxHTML();
+  if (tab === 'treaties') {
+    const rows = FAC_ORDER.filter(f => treatyList(f).length);
+    h += rows.length ? rows.map(f => `<div class="listrow" onclick="openFac('${f}')"><div class="qicon" style="border-color:${FACS[f].color}">${FACS[f].icon}</div><div style="flex:1;min-width:0"><b>${FACS[f].name}</b><div class="meta">${treatyList(f).map(k => `${TREATIES[k].icon} ${TREATIES[k].name} ${dipState(f).until && dipState(f).until[k] ? `(truce, ends in ${fmtDur(g2r((dipState(f).until[k] - gameHours()) * 3600))})` : `(day ${Math.floor(dipState(f).tr[k] / 24) + 1})`}`).join('<br>')}</div></div><span class="muted">›</span></div>`).join('') : `<div class="note" style="margin-top:8px">No treaties yet. Open a faction to propose one.</div>`;
+    h += `<div class="muted small" style="margin-top:8px">${TREATY_KEYS.map(k => `${TREATIES[k].icon} <b>${TREATIES[k].name}</b> (attitude ${TREATIES[k].req >= 0 ? '+' : ''}${TREATIES[k].req}): ${TREATIES[k].desc}`).join('<br>')}<br><br>Treaties stop goodwill from fading. Attacking a treaty partner breaks every treaty with them and costs reputation with all factions; ending one within 5 game days does too.</div>`;
+    return h;
+  }
+  h += `<div class="muted small" style="margin:6px 0">Tap a faction to see why they feel as they do, and to propose treaties.</div>` + FAC_ORDER.filter(f => !FACS[f].locked).sort((a, b) => S.rel[b] - S.rel[a]).map(facRowHTML).join('');
+  return h;
+}
+function facSheet() {
+  const f = UI.dipFac, F = FACS[f], D = dipState(f), a = S.rel[f];
+  const parts = attitudeParts(f).filter(p => Math.round(p.v) !== 0).sort((x, y) => Math.abs(y.v) - Math.abs(x.v));
+  let h = `<div class="grab"></div><div class="shead"><div class="qicon" style="border-color:${F.color}">${F.icon}</div><div><h3 style="margin:0;color:${F.color}">${F.name}</h3><div class="desc">${stanceChip(f)} · ${facSetts(f).length} holdings · strength ${fmt(facStrength(f))}</div></div><button class="hbtn x" onclick="openDip()">‹</button></div>`;
+  h += relBarHTML(a);
+  h += `<h4>Why they feel this way</h4>` + parts.map(p => `<div class="kv"><span>${esc(p.l)}${p.fade ? ' <span class="muted small">(fading)</span>' : ''}</span><b class="${p.v >= 0 ? 'pos' : 'neg'}">${p.v > 0 ? '+' : ''}${Math.round(p.v)}</b></div>`).join('') + `<div class="kv"><span><b>Total attitude</b></span><b>${Math.round(a)}</b></div>`;
+  h += `<div class="note" style="margin-top:8px">${PERSONA[f] || F.trait}</div>`;
+  if (aiw(f).fallen) return h + `<div class="note bad" style="margin-top:8px">This faction has been destroyed.</div>`;
+  h += peaceHTML(f);
+  h += `<h4>📜 Treaties</h4>`;
+  TREATY_KEYS.forEach(k => {
+    const T = TREATIES[k];
+    if (k === 'defense' && hasTreaty(f, 'alliance') && !hasTreaty(f, 'defense')) { h += `<div class="kv"><span style="flex:1;text-align:left">✅ ${T.icon} <b>${T.name}</b><br><span class="muted small">Included in your Military alliance.</span></span></div>`; return; }
+    if (hasTreaty(f, k)) {
+      const conf = UI.dipConfirm === f + k, early = gameHours() - D.tr[k] < 120;
+      h += `<div class="kv" style="align-items:center"><span style="flex:1;min-width:0;text-align:left">✅ ${T.icon} <b>${T.name}</b>${D.until && D.until[k] ? ' <span class="muted small">(truce)</span>' : ''}<br><span class="muted small">${D.until && D.until[k] ? `Truce ends in ${fmtDur(g2r((D.until[k] - gameHours()) * 3600))}.` : `Since day ${Math.floor(D.tr[k] / 24) + 1}.`} ${T.desc}</span></span><button class="btn ghost sm" onclick="cancelTreaty('${f}','${k}')">${conf ? (early ? '⚠️ Confirm (betrayal!)' : 'Confirm end') : 'End'}</button></div>`;
+      return;
+    }
+    UI.dipSweet = UI.dipSweet || {};
+    const sw = UI.dipSweet[f + k] || 0, p = treatyChance(f, k, sw), cd = (D.cd[k] || 0) > gameHours(), warBlock = stance(f) === 'war' && k !== 'nap';
+    const g1 = treatyGold(f, k);
+    h += `<div style="border-top:1px solid #ffffff14;padding:8px 0"><div>${T.icon} <b>${T.name}</b> <span class="muted small">· needs attitude ${T.req >= 0 ? '+' : ''}${T.req}</span></div><div class="muted small">${T.desc}</div>
+      ${warBlock ? '<div class="muted small neg">At war — a Non-aggression pact must come first.</div>' : cd ? '<div class="muted small">⏳ They refused recently — ask again later.</div>' : `<div class="row" style="gap:4px;margin-top:6px;align-items:center;flex-wrap:wrap">${[0, 1, 2].map(v => `<button class="btn ghost sm ${sw === v ? 'on' : ''}" onclick="UI.dipSweet['${f + k}']=${v};refreshModal(true)">${v ? '🪙' + fmt(v * g1) : 'No gold'}</button>`).join('')}
+      <span class="small ${p >= 0.6 ? 'pos' : p >= 0.3 ? '' : 'neg'}" style="flex:1;text-align:right">${p <= 0 ? 'No chance' : Math.round(p * 100) + '% chance'}</span></div>
+      <button class="btn ${p >= 0.5 ? '' : 'ghost'} full" style="margin-top:6px" ${p > 0 && S.gold >= sw * g1 ? '' : 'disabled'} onclick="proposeTreaty('${f}','${k}')">Propose ${T.name}</button>`}</div>`;
+  });
+  h += `<h4>🎁 Actions</h4><div class="row" style="gap:6px;flex-wrap:wrap"><button class="btn ghost sm" data-cost="${[giftCost(), giftCost(), giftCost(), giftCost()].join(',')}" data-block="0" onclick="sendGift('${f}')">🎁 Gift ${fmt(giftCost())} of each</button><button class="btn ghost sm" ${S.gold >= goldGiftCost() ? '' : 'disabled'} onclick="sendGoldGift('${f}')">🪙 Gift ${fmt(goldGiftCost())} gold${GOLD_LOVERS.includes(f) ? ' (×1.5)' : ''}</button></div><div class="muted small" style="margin-top:4px">Next gift: about +${giftWorth(f, 15)}. Repeated gifts are worth less, add at most +40 in total, and fade over time.</div>`;
+  if (stance(f) !== 'war' && inciteTarget(f)) h += `<button class="btn ghost sm full" style="margin-top:6px" ${S.gold >= inciteCost() && !incited(f) ? '' : 'disabled'} onclick="incite('${f}')">🗡️ ${incited(f) ? 'Already fighting for you' : `Pay 🪙${fmt(inciteCost())} to set them on the ${FACS[inciteTarget(f)].name}`}</button>`;
+  if (f === 'dwarfs' && S.grudges) h += `<button class="btn ghost sm full" style="margin-top:6px" ${S.gold >= reparationCost() ? '' : 'disabled'} onclick="payReparations()">📕 Pay ${fmt(reparationCost())} gold in reparations (clears 1 of ${S.grudges} Grudges)</button>`;
+  if (S.faction === 'elves' && stance(f) === 'neutral') h += `<div class="muted small" style="margin-top:6px">🦢 Your Influence can also win them over: Court Intrigue (+20) or Envoys of Ulthuan (instant Military alliance).</div>`;
+  return h;
+}
+
+
+/* ----- War score, truces & peace ----- */
+function wsAdd(f, v) { if (!f || FACS[f].locked) return; const D = dipState(f); D.ws = clamp((D.ws || 0) + v, -100, 100); }
+function wsTxt(v) { v = Math.round(v || 0); return v >= 20 ? 'you are winning' : v <= -20 ? 'you are losing' : 'evenly matched'; }
+function setTruce(f, hours) {
+  const D = dipState(f);
+  if (D.tr.nap != null && !(D.until && D.until.nap)) return;
+  D.tr.nap = gameHours();
+  D.until = D.until || {};
+  D.until.nap = gameHours() + hours;
+}
+function makePeace(f, hours, note) {
+  const D = dipState(f), a = attitude(f);
+  if (a < -35) addMod(f, 'peace', -35 - a, 'Peace treaty', 2);
+  setTruce(f, hours);
+  D.ws = 0;
+  relRefresh(f);
+  addReport('world', `🕊️ Peace with the ${FACS[f].name}`, `${note} A truce now holds for ${Math.round(hours / 24)} game days. Use it to win them over, or they may return to war when it ends.`, S.time);
+  toast(`🕊️ Peace with the ${FACS[f].name}`, 'good');
+}
+function peacePrice(f) { const ws = dipState(f).ws || 0; return Math.round((300 + 15 * gameDay()) * (1 + Math.max(0, -ws) / 15) * warPrice()); }
+function peaceChance(f, sw) { const ws = dipState(f).ws || 0, a = S.rel[f]; return clamp(0.15 + ws / 60 + (a + 50) / 80 + (sw || 0) * 0.15 + (S.dip.rep || 0) / 100, 0, 0.9); }
+function peaceHTML(f) {
+  const D = dipState(f), ws = Math.round(D.ws || 0);
+  if (stance(f) !== 'war') return ws ? `<div class="muted small" style="margin-top:6px">⚔️ Recent fighting with them: ${ws > 0 ? '+' : ''}${ws}</div>` : '';
+  UI.dipSweet = UI.dipSweet || {};
+  const sw = UI.dipSweet[f + 'peace'] || 0, price = peacePrice(f), cd = (D.cd.peace || 0) > gameHours(), p = peaceChance(f, sw);
+  return `<h4>⚔️ At war · score ${ws > 0 ? '+' : ''}${ws}</h4><div class="muted small">War score rises when you win battles against them or beat their raids and sieges, and falls when they win (${wsTxt(ws)}). A faction losing badly may offer peace or surrender on its own.</div>
+    ${cd ? '<div class="muted small" style="margin-top:6px">⏳ They refused peace recently.</div>' : `<div class="row" style="gap:4px;margin-top:6px;align-items:center;flex-wrap:wrap">${[0, 1, 2].map(v => `<button class="btn ghost sm ${sw === v ? 'on' : ''}" onclick="UI.dipSweet['${f}peace']=${v};refreshModal(true)">${v ? '🪙' + fmt(v * price) : 'No gold'}</button>`).join('')}<span class="small ${p >= 0.6 ? 'pos' : p >= 0.3 ? '' : 'neg'}" style="flex:1;text-align:right">${Math.round(p * 100)}% chance</span></div>
+    <button class="btn full" style="margin-top:6px" ${S.gold >= sw * price ? '' : 'disabled'} onclick="offerPeace('${f}')">🕊️ Offer peace (10-day truce)</button>`}`;
+}
+function offerPeace(f) {
+  simulate(Date.now());
+  const D = dipState(f), sw = (UI.dipSweet && UI.dipSweet[f + 'peace']) || 0, gold = sw * peacePrice(f);
+  if ((D.cd.peace || 0) > gameHours() || stance(f) !== 'war') return;
+  if (S.gold < gold) return toast('Not enough gold', 'bad');
+  if (Math.random() < peaceChance(f, sw)) { S.gold -= gold; makePeace(f, 240, gold ? `They accepted ${fmt(gold)} gold to end the war.` : 'They agreed to end the war.'); }
+  else { D.cd.peace = gameHours() + 24; addReport('world', `${FACS[f].icon} The ${FACS[f].name} reject peace`, 'They will fight on. Win more battles, or offer more gold.', Date.now()); toast(`${FACS[f].icon} Peace refused`, 'bad'); }
+  save(); refreshModal(true); rerender();
+}
+/* ----- Inbox: proposals, demands, requests ----- */
+const DEMANDERS = ['norsca', 'vampcoast', 'ogres', 'darkelves', 'chaosdwarfs', 'vampires', 'orcs'];
+function inbox() { S.dip.inbox = S.dip.inbox || []; return S.dip.inbox; }
+function inboxOpen() { return S && S.dip ? inbox().filter(m => m.state === 'open') : []; }
+function inboxHas(f) { return inbox().some(m => m.fac === f && (m.state === 'open' || m.state === 'active')); }
+function pushMsg(m) {
+  m.id = S.nextId++; m.state = 'open'; m.g = gameHours(); m.exp = m.g + (m.ttl || 24);
+  inbox().unshift(m);
+  if (inbox().length > 30) S.dip.inbox = inbox().slice(0, 30);
+  toast(`📨 ${FACS[m.fac].icon} ${msgTitle(m)}`, m.kind === 'demand' ? 'bad' : 'good');
+  if (m.kind === 'demand' || m.kind === 'peace' || m.kind === 'surrender') addReport('world', `📨 ${msgTitle(m)}`, `${msgBody(m)}<div class="muted small" style="margin-top:6px">Answer it in 🤝 Diplomacy → Inbox.</div>`, S.time);
+}
+function msgTitle(m) {
+  const F = FACS[m.fac].name;
+  if (m.kind === 'proposal') return `The ${F} propose a ${TREATIES[m.k].name}`;
+  if (m.kind === 'demand') return `The ${F} demand tribute`;
+  if (m.kind === 'peace') return `The ${F} offer peace`;
+  if (m.kind === 'surrender') return `The ${F} surrender`;
+  if (m.task === 'raze') return `The ${F} ask you to destroy ${m.tName}`;
+  if (m.task === 'deliver') return `The ${F} ask for ${RES_NAME[m.r]}`;
+  return `The ${F} ask you to strike at Chaos`;
+}
+function msgBody(m) {
+  const F = FACS[m.fac];
+  if (m.kind === 'proposal') return `${TREATIES[m.k].icon} ${TREATIES[m.k].desc}`;
+  if (m.kind === 'demand') return `Pay <b>🪙 ${fmt(m.gold)}</b> and they will leave you in peace for 5 game days (+10 relations). Refuse and their anger grows (−20)${stance(m.fac) === 'war' ? ' — and their raiders come sooner' : ''}.`;
+  if (m.kind === 'peace') return `They will pay <b>🪙 ${fmt(m.gold)}</b> in reparations for a 10-day truce. (War score ${Math.round(dipState(m.fac).ws || 0)}.)`;
+  if (m.kind === 'surrender') return `Beaten, they offer <b>🪙 ${fmt(m.gold)}</b> and <b>${fmt(m.res)}</b> of each resource for a 20-day truce. (War score ${Math.round(dipState(m.fac).ws || 0)}.)`;
+  const rw = `Reward: 🪙 ${fmt(m.gold)}, ⭐ 200 Renown and +${m.rel} relations.`;
+  if (m.task === 'raze') return `${F.icon} “${esc(m.tName)} of the ${FACS[m.tfac].name} troubles our lands. Destroy it.” Win an <b>Assault</b> on it within 4 game days of accepting. ${rw}`;
+  if (m.task === 'deliver') return `${F.icon} “Our stores run low.” Send <b>${fmt(m.amt)} ${RES_ICON[m.r]} ${RES_NAME[m.r]}</b> from the city you govern. ${rw}`;
+  return `${F.icon} “Strike at the servants of the Dark Gods.” Complete any War Against Chaos objective (a Rift, a Herald or a relic) within 5 game days of accepting. ${rw}`;
+}
+function msgReward(f) { return { gold: Math.round((300 + 20 * gameDay()) * warPrice()), rel: 15 }; }
+function genProposal() {
+  const c = [];
+  FAC_ORDER.forEach(f => {
+    if (FACS[f].locked || aiw(f).fallen || stance(f) === 'war' || inboxHas(f)) return;
+    const k = ['trade', 'access', 'defense', 'alliance'].find(k => !hasTreaty(f, k) && !(k === 'defense' && hasTreaty(f, 'alliance')) && S.rel[f] >= TREATIES[k].req + 10);
+    if (k) c.push({ fac: f, kind: 'proposal', k, ttl: 36 });
+  });
+  return c.length ? pick(c) : null;
+}
+function genDemand() {
+  const ps = playerStrength();
+  const c = DEMANDERS.filter(f => !FACS[f].locked && !aiw(f).fallen && !inboxHas(f) && S.rel[f] < 10 && facStrength(f) > ps * 0.5 && facSetts(f).some(s => S.cities.some(x => Math.hypot(x.x - s.x, x.y - s.y) <= 45)) && !hasTreaty(f, 'nap'));
+  if (!c.length) return null;
+  const f = pick(c);
+  return { fac: f, kind: 'demand', gold: Math.round((250 + 15 * gameDay()) * warPrice() * (f === 'norsca' || f === 'orcs' ? 1.3 : 1)), ttl: 18 };
+}
+function genRequest() {
+  const fr = FAC_ORDER.filter(f => !FACS[f].locked && !aiw(f).fallen && stance(f) !== 'war' && S.rel[f] >= 10 && !inboxHas(f));
+  if (!fr.length) return null;
+  const f = pick(fr), rw = msgReward(f), opts = [];
+  const tgt = S.setts.filter(s => !s.dead && !special(s) && s.kind !== 'citadel' && s.kind !== 'capital' && s.fac !== f && aiHostile(f, s.fac) && (FACS[s.fac].locked || stance(s.fac) !== 'allied') && S.cities.some(c => Math.hypot(c.x - s.x, c.y - s.y) <= 30))
+    .sort((a, b) => (stance(b.fac) === 'war') - (stance(a.fac) === 'war'))[0];
+  if (tgt) opts.push({ fac: f, kind: 'request', task: 'raze', sid: tgt.id, tName: tgt.name, tfac: tgt.fac, gold: rw.gold, rel: rw.rel, ttl: 24 });
+  const r = pick(RES);
+  opts.push({ fac: f, kind: 'request', task: 'deliver', r, amt: Math.round(400 + 60 * gameDay()), gold: Math.round(rw.gold * 0.6), rel: 12, ttl: 24 });
+  if (S.war && S.war.started && citadelWeak().n < 11 && CHAOS_FOES.includes(f)) opts.push({ fac: f, kind: 'request', task: 'chaos', gold: rw.gold * 2, rel: 20, ttl: 24 });
+  return pick(opts);
+}
+function dipMsgTick(dd) {
+  const W = S.dip, gh = gameHours();
+  inbox().forEach(m => {
+    if (m.state === 'open' && gh >= m.exp) {
+      m.state = 'expired';
+      if (m.kind === 'demand') { changeRel(m.fac, -20, 'refused', 'You ignored their demands', 2); if (stance(m.fac) === 'war') S.nextRaid = Math.min(S.nextRaid || Infinity, S.time + g2r(6 * 3600)); }
+    }
+    if (m.state === 'active') {
+      if (m.task === 'raze') { const t = S.setts.find(x => x.id === m.sid); if (!t || t.dead) { m.state = 'void'; addReport('world', `📨 Request void`, `${esc(m.tName)} fell to someone else before you could strike. The ${FACS[m.fac].name} release you from your promise.`, S.time); return; } }
+      if (m.task === 'chaos' && citadelWeak().n > m.base) return completeMsg(m);
+      if (gh >= m.dl) { m.state = 'failed'; changeRel(m.fac, -8, 'failed', 'You failed to keep your promise', 1.5); addReport('world', `📨 ${FACS[m.fac].name}: promise broken`, `You did not complete their request in time (−8 relations).`, S.time); }
+    }
+  });
+  if (gh < 72) return;
+  if (gh >= (W.nextPeaceG || 0)) {
+    W.nextPeaceG = gh + 12;
+    FAC_ORDER.forEach(f => {
+      if (FACS[f].locked || aiw(f).fallen || stance(f) !== 'war' || inboxHas(f)) return;
+      const ws = dipState(f).ws || 0;
+      if (ws >= 40 && Math.random() < 0.5) pushMsg({ fac: f, kind: 'surrender', gold: Math.round((600 + 30 * gameDay()) * warPrice()), res: Math.round(500 + 50 * gameDay()), ttl: 24 });
+      else if (ws >= 20 && Math.random() < 0.35) pushMsg({ fac: f, kind: 'peace', gold: Math.round((250 + 12 * gameDay()) * warPrice()), ttl: 24 });
+    });
+  }
+  if (gh < (W.nextMsgG || 0)) return;
+  W.nextMsgG = gh + rand(20, 40);
+  if (inboxOpen().length >= 3 || inbox().filter(m => m.state === 'active').length >= 2) return;
+  const gens = [[genProposal, 3], [genRequest, 3], [genDemand, 2]];
+  for (let i = 0; i < 3; i++) { const g = weightedPick(gens, gens.map(x => x[1])); const m = g[0](); if (m) { pushMsg(m); break; } }
+}
+function completeMsg(m) {
+  m.state = 'done';
+  addGold(m.gold); S.renown += 200;
+  changeRel(m.fac, m.rel, 'helped', 'You answered their call', 1.5);
+  S.stats.requestsDone = (S.stats.requestsDone || 0) + 1;
+  addReport('win', `📨 The ${FACS[m.fac].name} thank you`, `Request fulfilled: ${esc(msgTitle(m).replace(/^The [^ ]+( [A-Z][a-z]+)? ask you to /, ''))}. Reward: 🪙 ${fmt(m.gold)}, ⭐ 200 Renown, +${m.rel} relations.`, S.time);
+  toast(`📨 ${FACS[m.fac].icon} Request fulfilled!`, 'good');
+}
+function dipOnDefeat(c, res) {
+  if (!FACS[c.fac].locked) wsAdd(c.fac, res === 'sacked' || c.kind === 'capital' ? 20 : 8);
+  if (!S.dip) return;
+  inbox().forEach(m => { if (m.state === 'active' && m.task === 'raze' && m.sid === c.id) completeMsg(m); });
+}
+function answerMsg(id, yes) {
+  simulate(Date.now());
+  const m = inbox().find(x => x.id === id);
+  if (!m || m.state !== 'open') return;
+  const f = m.fac;
+  if (!yes) {
+    m.state = 'declined';
+    if (m.kind === 'demand') { changeRel(f, -20, 'refused', 'You refused their demands', 2); if (stance(f) === 'war') S.nextRaid = Math.min(S.nextRaid || Infinity, Date.now() + g2r(6 * 3600)); toast(`${FACS[f].icon} They will remember this`, 'bad'); }
+    else if (m.kind === 'proposal' || m.kind === 'request') changeRel(f, -2, 'declined', 'You turned down their offers', 2);
+    save(); refreshModal(true); rerender(); return;
+  }
+  if (m.kind === 'proposal') { if (hasTreaty(f, m.k)) { m.state = 'done'; } else { m.state = 'done'; signTreaty(f, m.k, 'You accepted their proposal.'); } }
+  else if (m.kind === 'demand') {
+    if (S.gold < m.gold) return toast('Not enough gold', 'bad');
+    S.gold -= m.gold; m.state = 'done';
+    changeRel(f, 10, 'paidDemand', 'You paid their demands', 2);
+    setTruce(f, 120); relRefresh(f);
+    addReport('world', `🪙 Tribute paid to the ${FACS[f].name}`, `You paid ${fmt(m.gold)} gold. They will leave you alone for 5 game days.`, Date.now());
+  } else if (m.kind === 'peace' || m.kind === 'surrender') {
+    m.state = 'done'; addGold(m.gold);
+    if (m.kind === 'surrender') { const c = capital(), cp = caps(c); RES.forEach(k => { c.res[k] = Math.min(k === 'crop' ? cp.gr : cp.wh, c.res[k] + m.res); }); S.stats.surrenders = (S.stats.surrenders || 0) + 1; }
+    makePeace(f, m.kind === 'surrender' ? 480 : 240, m.kind === 'surrender' ? `The ${FACS[f].name} surrendered, paying 🪙 ${fmt(m.gold)} and ${fmt(m.res)} of each resource.` : `They paid 🪙 ${fmt(m.gold)} in reparations.`);
+  } else if (m.kind === 'request') {
+    if (m.task === 'deliver') {
+      const c = CUR();
+      if (c.res[m.r] < m.amt) return toast(`${c.name} lacks ${fmt(m.amt)} ${RES_NAME[m.r]}`, 'bad');
+      c.res[m.r] -= m.amt;
+      completeMsg(m);
+    } else { m.state = 'active'; m.dl = gameHours() + (m.task === 'chaos' ? 120 : 96); m.base = citadelWeak().n; toast('📨 Request accepted', 'good'); }
+  }
+  save(); refreshModal(true); rerender();
+}
+function inboxHTML() {
+  const open = inbox().filter(m => m.state === 'open'), act = inbox().filter(m => m.state === 'active'), past = inbox().filter(m => !['open', 'active'].includes(m.state)).slice(0, 8);
+  const card = (m, btns) => `<div class="note ${m.kind === 'demand' ? 'bad' : ''}" style="margin-top:8px"><div class="row" style="gap:8px;align-items:flex-start"><span style="font-size:22px">${FACS[m.fac].icon}</span><div style="flex:1;min-width:0"><b>${esc(msgTitle(m))}</b><div class="small" style="margin-top:2px">${msgBody(m)}</div>${btns}</div></div></div>`;
+  let h = '';
+  if (!open.length && !act.length) h += `<div class="note" style="margin-top:8px">No messages. Factions write when they want something: treaties, help, tribute or peace.</div>`;
+  h += open.map(m => {
+    const left = fmtDur(g2r(Math.max(0, m.exp - gameHours()) * 3600));
+    const yes = m.kind === 'proposal' ? '✅ Accept' : m.kind === 'demand' ? `🪙 Pay ${fmt(m.gold)}` : m.kind === 'request' ? (m.task === 'deliver' ? `📦 Send ${fmt(m.amt)}` : '✅ Accept') : '🕊️ Accept peace';
+    const no = m.kind === 'demand' ? '✋ Refuse' : '✕ Decline';
+    return card(m, `<div class="muted small" style="margin-top:4px">⏳ Answer within ${left}</div><div class="row" style="gap:6px;margin-top:6px"><button class="btn sm" style="flex:1" onclick="answerMsg(${m.id},true)">${yes}</button><button class="btn ghost sm" style="flex:1" onclick="answerMsg(${m.id},false)">${no}</button></div>`);
+  }).join('');
+  if (act.length) h += `<h4>🎯 Promises in progress</h4>` + act.map(m => card(m, `<div class="muted small" style="margin-top:4px">⏳ ${fmtDur(g2r(Math.max(0, m.dl - gameHours()) * 3600))} left${m.task === 'raze' ? '' : ''}</div>${m.task === 'raze' ? (() => { const t = S.setts.find(x => x.id === m.sid); return t ? `<button class="btn ghost sm" style="margin-top:6px" onclick="closeModal();openSett(${t.id})">📍 Open ${esc(t.name)}</button>` : ''; })() : ''}`)).join('');
+  if (past.length) h += `<h4>Earlier</h4>` + past.map(m => `<div class="muted small">${FACS[m.fac].icon} ${esc(msgTitle(m))} — <b>${{ done: 'accepted', declined: 'declined', expired: 'expired', failed: 'failed', void: 'void' }[m.state] || m.state}</b></div>`).join('');
+  return h;
+}
+
+
+/* ----- Dwarfs: Book of Grudges & Lost Holds ----- */
+function bog() { if (!S.bog) S.bog = { list: [], settled: 0 }; return S.bog; }
+function bogOpen() { return S.bog ? S.bog.list.filter(g => !g.done) : []; }
+function bogFester() { return bogOpen().filter(g => !g.ancient && gameHours() - g.g >= 72).length; }
+function bogPenalty() { return S.faction === 'dwarfs' ? Math.min(0.1, 0.02 * bogFester()) : 0; }
+function bogAdd(f, why, ancient) {
+  if (S.faction !== 'dwarfs' || !f || !FACS[f]) return;
+  const B = bog(), open = bogOpen();
+  if (open.length >= 12) { const o = open.find(g => g.fac === f) || open[0]; o.n = (o.n || 1) + 1; return; }
+  B.list.unshift({ id: S.nextId++, fac: f, why, g: gameHours(), n: 1, ancient: !!ancient });
+  B.list = B.list.slice(0, 40);
+  if (!ancient) addReport('alert', `📕 A grudge against the ${FACS[f].name}`, `<i>“${esc(why)}.”</i> It is written in the Book of Grudges. Settle it by defeating the ${FACS[f].name} in battle — unsettled grudges older than 3 game days make the holds grumble (−2% production each).`, S.time);
+}
+function bogSettle(f, how) {
+  if (S.faction !== 'dwarfs' || !S.bog) return '';
+  const g = bogOpen().filter(x => x.fac === f && !x.ancient).sort((a, b) => a.g - b.g)[0];
+  if (!g) return '';
+  g.done = gameHours(); g.how = how;
+  S.bog.settled++;
+  const gold = Math.round(100 + 5 * gameDay());
+  addGold(gold); S.renown += 200;
+  return `<div class="note good" style="margin-top:8px">📕 <b>Grudge settled:</b> <i>“${esc(g.why)}”</i> — struck from the Book. ⭐ +200 Renown, 🪙 +${fmt(gold)}. Thorgrim’s offense bonus: +${Math.min(15, S.bog.settled)}%.</div>`;
+}
+function genLostHolds() {
+  const names = ['Karak Varn', 'Mount Gunbad', 'Karak Ungor'];
+  names.forEach((nm, i) => {
+    const p = spot((x, y) => regionAt(x, y).id === 'worldsedge' && ['mountain', 'hills'].includes(terrAt(x, y)), 6);
+    const s = addSett('orcs', 'settlement', p, 5 + i * 2);
+    if (!s) return;
+    s.name = nm; s.lostHold = true;
+    s.army = settArmy(s);
+    bogAdd('orcs', `The grobi took ${nm} from us`, true);
+  });
+}
+function reclaimHold(s, c) {
+  c.hold = true;
+  S.renown += 1000;
+  S.stats.holdsReclaimed = (S.stats.holdsReclaimed || 0) + 1;
+  if (S.bog) { const g = bogOpen().find(x => x.ancient && x.why.includes(s.name)); if (g) { g.done = gameHours(); g.how = 'reclaimed'; S.bog.settled++; } }
+  addReport('win', `🏔️ ${s.name} reclaimed!`, `After long years in the hands of the grobi, ${esc(s.name)} is Dwarf again. The ancient grudge is settled. The hold’s mines run deep: <b>+25% Iron and Clay</b> in this city. ⭐ +1,000 Renown.`, S.time);
+  return `<div class="note good" style="margin-top:8px">🏔️ <b>A Lost Hold is reclaimed!</b> ${esc(s.name)} gets +25% Iron and Clay, and an ancient grudge is struck from the Book. ⭐ +1,000 Renown.</div>`;
+}
+function bogPanelHTML() {
+  const open = bogOpen(), fe = bogFester();
+  return `<div class="panel" onclick="openFaction()" style="cursor:pointer"><div class="row"><span style="font-size:26px">📕</span><div style="flex:1;min-width:0"><b>Book of Grudges</b> <span class="muted small">${open.length} open · ${S.bog ? S.bog.settled : 0} settled</span>
+    <div class="muted small">${fe ? `<span class="neg">${fe} festering — production −${Math.round(bogPenalty() * 100)}%</span> · ` : ''}Thorgrim +${Math.min(15, S.bog ? S.bog.settled : 0)}% offense · tap to read</div></div><span class="muted">›</span></div></div>`;
+}
+function bogSheetHTML() {
+  const B = bog(), open = bogOpen(), done = B.list.filter(g => g.done).slice(0, 10), gh = gameHours();
+  const head = `<div class="grab"></div><div class="shead"><div class="qicon">📕</div><div><h3 style="margin:0">The Book of Grudges</h3><div class="desc">${open.length} open · ${B.settled} settled · Thorgrim +${Math.min(15, B.settled)}% offense</div></div><button class="hbtn x" onclick="closeModal()">✕</button></div>`;
+  let h = head + `<div class="note">Every wrong done to the Dawi is written here: raids, sieges and holdings taken. <b>Settle a grudge</b> by beating that faction in battle — win an attack on them, or beat their raid or siege. Each settled grudge gives ⭐ 200 Renown, gold, and +1% offense to Thorgrim (max +15%). Grudges left open for over 3 game days <b>fester</b>: −2% production each (max −10%). Ancient grudges for the Lost Holds are settled by reclaiming the hold with a Lord.</div>`;
+  h += open.length ? `<h4>Open grudges</h4>` + open.map(g => { const age = gh - g.g, fest = !g.ancient && age >= 72; const s = g.ancient ? S.setts.find(x => x.lostHold && !x.dead && g.why.includes(x.name)) : null; return `<div class="kv" style="align-items:center"><span style="flex:1;text-align:left">${FACS[g.fac].icon} <i>“${esc(g.why)}”</i>${g.n > 1 ? ` ×${g.n}` : ''}<br><span class="muted small">${g.ancient ? '🏔️ Ancient grudge — reclaim the hold' : `${fest ? '<span class="neg">festering</span> · ' : ''}written ${fmtDur(g2r(age * 3600))} ago · beat the ${FACS[g.fac].name}`}</span></span>${s ? `<button class="btn ghost sm" onclick="closeModal();openSett(${s.id})">📍</button>` : ''}</div>`; }).join('') : `<div class="note good" style="margin-top:8px">No open grudges. The ancestors are pleased.</div>`;
+  if (done.length) h += `<h4>Settled</h4>` + done.map(g => `<div class="muted small">✅ ${FACS[g.fac].icon} “${esc(g.why)}” — ${esc(g.how || 'avenged')}</div>`).join('');
+  return h;
+}
+/* ----- AI Empire & High Elves ----- */
+function genOrderFactions() {
+  const added = [];
+  const far = (x, y) => S.cities.every(c => Math.hypot(c.x - x, c.y - y) >= 8) && !S.setts.some(t => Math.abs(t.x - x) <= 1 && Math.abs(t.y - y) <= 1);
+  const lv = (p, b) => b + Math.floor(capDist(p) / 14);
+  const put = (fac, kind, regs, base, n) => { for (let i = 0; i < (n || 1); i++) { const p = spot((x, y) => regs.includes(regionAt(x, y).id) && terrAt(x, y) !== 'mountain' && far(x, y), 5); if (p) { const st = addSett(fac, kind, p, lv(p, base)); if (st && S.time && gameHours() > 24) st.gx = newSettGx(fac); } } };
+  if (FAC_ORDER.includes('imperials') && !S.setts.some(t => t.fac === 'imperials')) { put('imperials', 'capital', ['reikland'], 8); put('imperials', 'settlement', ['middenland'], 4, 2); put('imperials', 'settlement', ['stirland'], 4, 1); put('imperials', 'settlement', ['reikland'], 4, 1); if (S.setts.some(t => t.fac === 'imperials')) added.push('imperials'); }
+  if (FAC_ORDER.includes('asur') && !S.setts.some(t => t.fac === 'asur')) { put('asur', 'capital', ['ulthuan'], 8); put('asur', 'settlement', ['ulthuan'], 4, 3); if (S.setts.some(t => t.fac === 'asur')) added.push('asur'); }
+  added.forEach(f => { if (S.rel && S.rel[f] == null) S.rel[f] = relBaseline(f); });
+  return added;
+}
+
+
+/* ----- Skaven: the Under-Empire ----- */
+function genSkaven() {
+  if (!FAC_ORDER.includes('skaven')) return false;
+  const lv = (p, b) => b + Math.floor(capDist(p) / 14);
+  const far = (x, y) => S.cities.every(c => Math.hypot(c.x - x, c.y - y) >= 7);
+  const put = (kind, pred, base, n) => { for (let i = 0; i < (n || 1); i++) { const p = spot((x, y) => far(x, y) && pred(x, y), 5); if (p) { const st = addSett('skaven', kind, p, lv(p, base)); if (st && S.time && gameHours() > 24) st.gx = newSettGx('skaven'); } } };
+  const reg = ids => (x, y) => ids.includes(regionAt(x, y).id);
+  put('capital', (x, y) => regionAt(x, y).id === 'tilea' && ['marsh', 'plains', 'hills'].includes(terrAt(x, y)), 8);
+  put('settlement', (x, y) => regionAt(x, y).id === 'kislev' && y >= 30, 5);
+  { const hp = S.setts.find(t => t.fac === 'skaven' && t.kind === 'settlement' && !t.dead); if (hp && !S.setts.some(t => t.name === 'The Hell Pit')) hp.name = 'The Hell Pit'; }
+  put('camp', reg(['worldsedge']), 1, 3);
+  put('camp', reg(['badlands', 'tilea']), 1, 2);
+  const ok = S.setts.some(t => t.fac === 'skaven' && !t.dead);
+  if (ok && S.rel && S.rel.skaven == null) S.rel.skaven = relBaseline('skaven');
+  return ok;
+}
+function ratEightPeaks() {
+  const ep = (S.sites || []).find(x => x.kind === 'lm_eightpeaks');
+  if (!ep || !FAC_ORDER.includes('skaven')) return;
+  const p = spotNear(ep.x, ep.y, 2, 5, (x, y) => !['sea', 'deep'].includes(terrAt(x, y)) && !S.setts.some(t => !t.dead && Math.abs(t.x - x) <= 1 && Math.abs(t.y - y) <= 1));
+  if (p) { const n = addSett('skaven', 'camp', p, 3 + Math.floor(capDist(p) / 14)); if (n) n.name = 'Clan Mors Warren'; }
+}
+function skavenWeakness() {
+  let mine = 0;
+  S.cities.forEach(c => UNITS[S.faction].forEach(u => { if (u.role !== 'Settler') mine += (c.troops[u.id] || 0) * (u.di + u.dc) / 2; }));
+  const theirs = facSetts('skaven').reduce((a, s) => a + hostPower(settArmy(s)), 0) * 0.25;
+  return mine < theirs;
+}
+function skavenTick(gh) {
+  if (!FAC_ORDER.includes('skaven') || aiw('skaven').fallen || !S.setts.some(t => t.fac === 'skaven' && !t.dead)) return;
+  if (S.nextRatG == null) S.nextRatG = Math.max(gh, protectH()) + rand(48, 72);
+  let guard = 0;
+  while (gh >= S.nextRatG && guard++ < 10) {
+    S.nextRatG += rand(30, 48);
+    if (gh < protectH() || S.peace) continue;
+    const surfaced = S.setts.filter(t => t.fac === 'skaven' && !t.dead && t.surfaced).length;
+    if (facSetts('skaven').length >= EXP_CAP.skaven + 4 || surfaced >= 2 + Math.floor(S.cities.length / 2) || S.setts.filter(t => !t.dead).length >= WORLD_CAP + 8) continue;
+    if (Math.random() > 0.6) continue;
+    const c = weightedPick(S.cities, S.cities.map(x => 0.3 + wealthRatio(x)));
+    const p = spotNear(c.x, c.y, 6, 12, (x, y) => !['sea', 'deep'].includes(terrAt(x, y)) && !S.setts.some(t => !t.dead && Math.abs(t.x - x) <= 1 && Math.abs(t.y - y) <= 1));
+    if (!p) continue;
+    const n = addSett('skaven', 'camp', p, Math.min(14, 2 + Math.floor(gameDay() / 8)));
+    if (!n) continue;
+    n.surfaced = true;
+    addReport('alert', `🐀 A Skaven warren surfaces near ${c.name}`, `The ground splits at (${n.x}|${n.y}) and <b>${esc(n.name)}</b> (Lv ${settLvl(n)}) boils up from the Under-Empire, ${Math.round(Math.hypot(n.x - c.x, n.y - c.y))} tiles from ${esc(c.name)}. Raze it before it grows — warrens fester and raid nearby cities.`, S.time);
+    toast(`🐀 Skaven warren near ${c.name}`, 'bad');
+  }
+  const D = S.dip && S.dip.f && S.dip.f.skaven;
+  if (!D || !treatyList('skaven').length) return;
+  if (S.nextBetrayG == null) S.nextBetrayG = gh + 24;
+  guard = 0;
+  while (gh >= S.nextBetrayG && guard++ < 10) {
+    S.nextBetrayG += 24;
+    if (!treatyList('skaven').length) break;
+    if (Math.random() >= (skavenWeakness() ? 0.3 : 0.03)) continue;
+    const names = treatyList('skaven').map(k => TREATIES[k].icon + ' ' + TREATIES[k].name).join(', ');
+    D.tr = {}; if (D.until) D.until = {};
+    addMod('skaven', 'treachery', -40, 'They betrayed you', 2);
+    relRefresh('skaven');
+    S.stats.ratBetrayals = (S.stats.ratBetrayals || 0) + 1;
+    addReport('alert', '🐀 The Skaven betray you!', `Smelling weakness, the Council of Thirteen tears up every treaty: ${names}. ${stance('skaven') === 'war' ? 'Their clawpacks are already on the move.' : ''} Keep a strong army at home and they think twice.`, S.time);
+    toast('🐀 The Skaven have betrayed you!', 'bad');
+    break;
+  }
 }
 
 /* ----- Siege works & supplies ----- */
@@ -4400,8 +5105,8 @@ function sendGoldGift(fac) {
   const g = goldGiftCost();
   if (S.gold < g) return toast('Not enough gold', 'bad');
   S.gold -= g;
-  const gd = fac === 'south' ? 22 : 15;
-  changeRel(fac, gd);
+  const gd = giftWorth(fac, (fac === 'south' ? 22 : 15) * (GOLD_LOVERS.includes(fac) ? 1.5 : 1));
+  changeRel(fac, gd, 'gift', 'Gifts', null, 40);
   toast(`🪙 Gold sent to the ${FACS[fac].name} (+${gd})`, 'good');
   save(); refreshModal(true); rerender();
 }
@@ -4426,7 +5131,7 @@ function incite(f) {
   S.gold -= g;
   S.incite = (S.incite || []).filter(x => x.untilG > gameHours());
   S.incite.push({ a: f, b: e, untilG: gameHours() + 240 });
-  changeRel(f, 5);
+  changeRel(f, 5, 'incite', 'You paid them to fight');
   addReport('world', `🗡️ The ${FACS[f].name} march against the ${FACS[e].name}`, `Your gold has bought a war. For the next 10 game days the ${FACS[f].icon} ${FACS[f].name} will attack the ${FACS[e].icon} ${FACS[e].name}.`, Date.now());
   toast(`🗡️ The ${FACS[f].name} go to war with the ${FACS[e].name}`, 'good');
   save(); refreshModal(true); rerender();
@@ -4448,7 +5153,7 @@ function fundRevolt(id) {
   s.stunG = Math.max(s.stunG || 0, gameHours() + 48);
   s.dmg = s.dmg || {}; s.dmg.military = Math.min(10, (s.dmg.military || 0) + 2);
   s.revoltG = gameHours() + 72;
-  if (!FACS[s.fac].locked) changeRel(s.fac, -10);
+  if (!FACS[s.fac].locked) changeRel(s.fac, -10, 'revolt', 'You stirred revolt in their lands');
   S.stats.revolts = (S.stats.revolts || 0) + 1;
   addReport('win', `🗡️ Revolt in ${s.name}`, `Your gold bought riots in ${esc(s.name)}. Its garrison is down by 30%, its growth stalls for 2 game days and its recruitment is damaged.`, Date.now());
   toast(`🗡️ Revolt in ${s.name}!`, 'good');
@@ -4550,6 +5255,8 @@ function beginSiege(id, t) {
   }
   r.phase = 'siege'; r.siegeStart = t; r.siegeEnd = t + g2r(r.siegeH * 3600);
   c.siegeCD = gameHours() + 96;
+  planAllyRelief(r, c, t);
+  if (S.faction === 'dwarfs') bogAdd(r.fac, `They laid siege to ${c.name}`);
   addReport('alert', `${cityTag(c)}⚔️ ${c.name} is under siege!`, `The ${FACS[r.fac].icon} ${FACS[r.fac].name} have surrounded ${esc(c.name)}. Their engines will batter the walls until they storm the city in <b>${fmtDur(r.siegeEnd - t)}</b>. Production is halved while the siege lasts, and from halfway through your garrison starts to go hungry.${reinf}<div class="muted small" style="margin-top:6px">Open the city to <b>sally out</b> or <b>buy them off</b>, or send an army from another city to <b>break the siege</b>.</div>`, t);
   toast(`⚔️ ${c.name} is under siege!`, 'bad');
   UI.dirty = true;
@@ -4595,6 +5302,7 @@ function sallyOut(cid) {
   if (res.attWin || !sumObj(r.army)) {
     endSiege(r, 'sally', now);
     S.stats.siegesBroken = (S.stats.siegesBroken || 0) + 1; S.renown += 100;
+    o.extra += bogSettle(r.fac, `driven from ${c.name}`);
     title = `🏰 ${c.name}: the sally breaks the siege!`;
     o.extra += `<div class="note good" style="margin-top:8px">The besiegers flee, abandoning their engines. ⭐ +100 Renown.</div>`;
   } else title = `${c.name}: the sally is thrown back`;
@@ -4611,7 +5319,7 @@ function buyOff(cid) {
   if (S.gold < g) return toast('Not enough gold', 'bad');
   S.gold -= g;
   endSiege(r, 'bribe', Date.now());
-  changeRel(r.fac, 5);
+  changeRel(r.fac, 5, 'tribute', 'You paid them off');
   addReport('info', `🪙 The ${FACS[r.fac].name} take your gold and leave`, `You paid ${fmt(g)} gold. The siege host turns away from ${esc((cityById(cid) || {}).name || '')}.`, Date.now());
   toast(`🪙 Paid ${fmt(g)} gold — the host turns back`, 'good');
   save(); closeModal(); rerender();
@@ -4773,10 +5481,12 @@ function spawnHoldAttack(t) {
   if (S.peace || S.paused || gameHours() < protectH()) return;
   const held = (S.sites || []).filter(st => st.owner && cityById(st.owner) && !S.incoming.some(r => r.siteId === st.id));
   if (!held.length) return;
-  const st = pick(held);
-  const near = S.setts.filter(x => !x.dead && !special(x) && x.kind !== 'citadel' && raidFacOk(x.fac, gameHours()) && stance(x.fac) === 'war' && !(x.fac === 'chaos' && !S.invasion) && Math.hypot(x.x - st.x, x.y - st.y) <= 22);
+  const ratsOk = FAC_ORDER.includes('skaven') && stance('skaven') === 'war' && raidFacOk('skaven', gameHours());
+  const st = weightedPick(held, held.map(x => x.kind === 'warp' && ratsOk ? 4 : 1));
+  const near = S.setts.filter(x => !x.dead && !special(x) && x.kind !== 'citadel' && raidFacOk(x.fac, gameHours()) && stance(x.fac) === 'war' && !(x.fac === 'chaos' && !S.invasion) && Math.hypot(x.x - st.x, x.y - st.y) <= (x.fac === 'skaven' && st.kind === 'warp' ? 34 : 22));
   if (!near.length) return;
-  const src = near.sort((a, b) => Math.hypot(a.x - st.x, a.y - st.y) - Math.hypot(b.x - st.x, b.y - st.y))[0];
+  const rats = st.kind === 'warp' ? near.filter(x => x.fac === 'skaven') : [];
+  const src = (rats.length ? rats : near).sort((a, b) => Math.hypot(a.x - st.x, a.y - st.y) - Math.hypot(b.x - st.x, b.y - st.y))[0];
   const p = findPath(src.x, src.y, st.x, st.y, true);
   if (!isFinite(p.cost)) return;
   const frac = (0.15 + Math.random() * 0.15) * DIFF().raidSize, army = {};
@@ -4806,6 +5516,7 @@ function resolveSiteDefense(r, t) {
   let title;
   if (res.attWin) {
     st.owner = null; st.gar = {}; st.mil = {}; st.army = surv; LM_VER++;
+    if (S.faction === 'dwarfs') bogAdd(r.fac, `They seized our ${K.name}`);
     S.stats.sitesLost = (S.stats.sitesLost || 0) + 1;
     title = `${K.icon} ${K.name} lost to the ${FACS[r.fac].name}`;
     extra += `<div class="note bad" style="margin-top:8px">The ${FACS[r.fac].name} hold the ${K.name} now${oc ? ' — ' + esc(oc.name) + ' loses its bonus' : ''}. Assault it to win it back. 💡 Station troops at your holdings to defend them.</div>`;
@@ -4856,6 +5567,7 @@ function goldIncome() {
   S.cities.forEach(c => { t += 2 + 0.5 * c.bld.keep + c.bld.market + (c.bld.harbour || 0); });
   t *= (1 + TB('tax')) * (hasMon('hall') ? 1.15 : 1);
   t += ownedSites('port').length * 3;
+  t += tradeIncome();
   return t;
 }
 function mercUpkeep() {
@@ -4926,6 +5638,7 @@ function goldSummaryHTML() {
   const inc = goldIncome(), up = mercUpkeep(), net = inc - up;
   return `<div class="stats s3"><div class="stat"><b>🪙 ${fmt(S.gold)}</b><span>Treasury</span></div><div class="stat"><b class="${net >= 0 ? 'pos' : 'neg'}">${net >= 0 ? '+' : '−'}${fmt(Math.abs(net) * S.speed)}/h</b><span>Net gold</span></div><div class="stat"><b>${fmt(goldSafe())}</b><span>Safe from raids</span></div></div>
     <div class="kv"><span>Taxes, ports & harbours</span><span class="pos">+${fmt(inc * S.speed)}/h</span></div>
+    ${tradeIncome() ? `<div class="kv"><span>💰 Trade agreements</span><span class="pos">+${fmt(tradeIncome() * S.speed)}/h</span></div>` : ''}
     <div class="kv"><span>Mercenary upkeep</span><span class="${up > 0 ? 'neg' : 'muted'}">−${fmt(up * S.speed)}/h</span></div>
     ${warPrice() > 1.01 ? `<div class="kv"><span>⚔️ War prices</span><span class="neg">+${Math.round((warPrice() - 1) * 100)}%</span></div>` : ''}
     <div class="muted small">Spend gold to rush buildings, training and research (🪙 buttons in each queue), on gifts and bribes in Diplomacy, to fund revolts in enemy settlements, and on monuments below. Taxes grow with each city’s Keep, Marketplace and Harbour. Plunder, ruins, adventures, ransoms and allied tribute also pay gold. Raiders who beat your garrison steal 10% of the gold above your safe amount (Cranny).${up > 0 && net < 0 ? ' <b class="neg">Your mercenaries cost more than you earn — they will desert when the treasury runs dry.</b>' : ''}</div>`;
@@ -5068,6 +5781,12 @@ const TECHS = {
     mil: [['moreboyz', '🪓', 'More Boyz!', { train: 0.1 }], ['biggabows', '🏹', 'Bigga Bows', { att_ranged: 0.1 }], ['stikkas', '👺', 'Stikkas Up!', { def_antilarge: 0.1, att_antilarge: 0.05 }], ['fasta', '🐺', 'Fasta Wolves', { att_cav: 0.1, speed: 0.05 }], ['gorktoof', '🦷', 'Gork’s Toof', { att_monster: 0.15, att_siege: 0.15 }]],
     realm: [['paths', '🥾', 'Waaagh! Paths', { speed: 0.1 }], ['shrooms', '🍄', 'Shaman Shrooms', { agent: 0.1 }], ['spiky', '🌵', 'Spiky Walls', { wall: 0.15, traps: 0.25 }], ['bigfights', '🥊', 'Big Fights', { vet: 0.25, renown: 0.1 }], ['bigboss', '💪', 'Da Biggest Boss', { upkeep: 0.1, att: 0.05 }]],
     gold: [['teef', '🦷', 'Teef Collectin’', { tax: 0.15 }], ['shiny', '✨', 'Shiny Fings', { plunder: 0.25, sell: 0.15 }], ['bribin', '💰', 'Bribin’ da Boyz', { mercupk: 0.2 }], ['hagglin', '👺', 'Gobbo Hagglin’', { prices: 0.15 }], ['hoard', '🗝️', 'Da Big Hoard', { tax: 0.25, goldsafe: 0.5 }]]
+  },
+  dwarfs: {
+    eco: [['brew', '🍺', 'Brewmasters’ Halls', { prod_crop: 0.1 }], ['deepmines', '⛏️', 'Deep Mines', { prod: 0.05 }], ['stonework', '🧱', 'Ancestral Stonework', { build: 0.1 }], ['vaults', '💎', 'Gromril Vaults', { store: 0.2, cranny: 0.25 }], ['karaz', '🏔️', 'Glory of Karaz Ankor', { prod: 0.1 }]],
+    mil: [['oaths', '🪖', 'Oaths of Service', { train: 0.1 }], ['blackpowder', '🔫', 'Thunderer Drill', { att_ranged: 0.1 }], ['shieldwall', '🛡️', 'Shield Wall', { def_antilarge: 0.1, att_antilarge: 0.05 }], ['gyro', '🚁', 'Gyro Engineering', { att_cav: 0.1 }], ['guild', '⚙️', 'Engineers’ Guild', { att_monster: 0.15, att_siege: 0.15 }]],
+    realm: [['ungdrin', '🕳️', 'Ungdrin Paths', { speed: 0.1 }], ['runesmiths', '🔨', 'Runesmith Lore', { agent: 0.1 }], ['stonewalls', '🏰', 'Walls of Karaz Ankor', { wall: 0.15 }], ['ancestors', '🗿', 'Ancestor Worship', { renown: 0.15, feast: 0.2 }], ['oathgold', '📕', 'Oath of the High King', { upkeep: 0.1, def: 0.05 }]],
+    gold: [['tolls', '⚖️', 'Hold Tolls', { tax: 0.15 }], ['gromril', '🪙', 'Gromril Trade', { plunder: 0.25, sell: 0.15 }], ['rangers', '🗡️', 'Hired Rangers', { mercupk: 0.2 }], ['barakvarr', '⚓', 'Merchants of Barak Varr', { prices: 0.15 }], ['hoard', '💰', 'The Hoard of Karaz-a-Karak', { tax: 0.25, goldsafe: 0.5 }]]
   }
 };
 function techList() {
@@ -5162,8 +5881,8 @@ function academyHTML(c) {
 function smithLv(id) { return (S.smith && S.smith[id]) || 0; }
 function smithMult(id) { return 1 + 0.02 * smithLv(id); }
 function uAtt(u) { return u.att * smithMult(u.id) * vetMult(u.id) * (1 + TB('att') + TB('att_' + unitTag(u.id))) * (hasMon('forge') ? 1.05 : 1); }
-function uDi(u) { return u.di * smithMult(u.id) * vetMult(u.id) * (1 + TB('def') + TB('def_' + unitTag(u.id))); }
-function uDc(u) { return u.dc * smithMult(u.id) * vetMult(u.id) * (1 + TB('def') + TB('def_' + unitTag(u.id))); }
+function uDi(u) { return u.di * smithMult(u.id) * vetMult(u.id) * (1 + TB('def') + TB('def_' + unitTag(u.id))) * (S.faction === 'dwarfs' ? 1.15 : 1); }
+function uDc(u) { return u.dc * smithMult(u.id) * vetMult(u.id) * (1 + TB('def') + TB('def_' + unitTag(u.id))) * (S.faction === 'dwarfs' ? 1.15 : 1); }
 function smithCost(u, to) { const f = 3 * Math.pow(1.18, to - 1); return u.cost.map(x => Math.round(x * f / 5) * 5); }
 function smithTimeSec(c, u, to) { return u.time * 6 * Math.pow(1.12, to - 1) * Math.pow(0.96, Math.max(0, c.bld.smithy - 1)) * (S.faction === 'empire' ? 0.9 : 1); }
 function smithStart(id) {
@@ -5231,7 +5950,7 @@ const FEASTS = {
   small: { name: 'Feast', icon: '🍖', req: 1, hours: 24, cost: [1500, 1600, 1400, 900], base: 0.6 },
   great: { name: 'Great Festival', icon: '🎆', req: 10, hours: 60, cost: [7000, 7500, 7000, 4000], base: 1.0 }
 };
-const FEAST_NAMES = { empire: { small: 'Feast of Sigmar', great: 'Grand Carnival of the Reik' }, elves: { small: 'Feast of Asuryan', great: 'Festival of the Phoenix King' }, greenskins: { small: 'Big Grub-Up', great: 'Da Biggest Feast Eva' } };
+const FEAST_NAMES = { empire: { small: 'Feast of Sigmar', great: 'Grand Carnival of the Reik' }, elves: { small: 'Feast of Asuryan', great: 'Festival of the Phoenix King' }, greenskins: { small: 'Big Grub-Up', great: 'Da Biggest Feast Eva' }, dwarfs: { small: 'Brewfest', great: 'Great Feast of Grungni' } };
 function feastName(k) { return (FEAST_NAMES[S.faction] || {})[k] || FEASTS[k].name; }
 function feastHours(c, k) { return FEASTS[k].hours * Math.pow(0.97, Math.max(0, c.bld.townhall - 1)); }
 function feastReward(c, k) { return Math.round(renownRate() * FEASTS[k].hours * (FEASTS[k].base + 0.03 * c.bld.townhall) * (k === 'great' ? 1.5 : 1) * (1 + TB('feast'))); }
@@ -5313,11 +6032,11 @@ function prisonerAct(pid, act) {
   if (act === 'ransom') {
     const v = ransomGold(p);
     addGold(v);
-    changeRel(p.fac, 3);
+    changeRel(p.fac, 3, 'captives', 'Captives returned');
     toast(`🪙 The ${F.name} paid ${fmt(v)} gold`, 'good');
   } else if (act === 'release') {
     const d = Math.min(20, Math.max(4, Math.round(n * 0.3)));
-    changeRel(p.fac, d);
+    changeRel(p.fac, d, 'captives', 'Captives returned');
     const src = S.setts.find(x => x.id === p.settId && !x.dead);
     if (src) for (const k in p.units) src.army[k] = (src.army[k] || 0) + p.units[k];
     toast(`🕊️ Released ${n} ${F.name} captives (+${d} relations)`, 'good');
@@ -5414,7 +6133,8 @@ function rorCheck() {
 const AGENT_DEF = {
   empire: { name: 'Witch Hunter', icon: '🕵️', names: ['Mattheus Krieger', 'Ilse Brandt', 'Gottfried Asch', 'Lukas Hexendorf', 'Hilde Marr', 'Konrad Weiss'] },
   elves: { name: 'Loremaster', icon: '🪄', names: ['Aelyth Starsong', 'Ithrandel', 'Saerith Moonveil', 'Caradryel', 'Lianne Dawnspire', 'Elathor'] },
-  greenskins: { name: 'Goblin Shaman', icon: '🍄', names: ['Snikrot Mushbrain', 'Grizzik', 'Nagbad da Loopy', 'Skrit Squigeye', 'Ozgob', 'Wurrzag Jr.'] }
+  greenskins: { name: 'Goblin Shaman', icon: '🍄', names: ['Snikrot Mushbrain', 'Grizzik', 'Nagbad da Loopy', 'Skrit Squigeye', 'Ozgob', 'Wurrzag Jr.'] },
+  dwarfs: { name: 'Runesmith', icon: '🔨', names: ['Kragg Runehammer', 'Thorgrim Ashbeard', 'Helga Runeforge', 'Durin Stonecutter', 'Grimbol Anvilborn', 'Ylva Hammerhand'] }
 };
 const MISSIONS = {
   sabotage: { icon: '💥', name: 'Sabotage walls', base: 0.7, desc: 'Cuts the walls by 3–6 levels for 24 game hours. Time your assault!' },
@@ -5478,12 +6198,12 @@ function agentEvent(id, t) {
       if (m.kind === 'sabotage') { s.sabW = 3 + Math.floor(Math.random() * 4); s.sabG = gh + 24; m.note = `The walls of ${esc(s.name)} are weakened by <b>${s.sabW} levels</b> for 24 game hours.`; }
       else if (m.kind === 'assassinate') { const f = rand(0.1, 0.2) + 0.01 * agentLvl(a); let k = 0; for (const u in s.army) { const x = s.army[u] * f; k += x; s.army[u] -= x; } m.note = `About <b>${fmt(k)}</b> defenders of ${esc(s.name)} were slain in the night.`; S.stats.kills = (S.stats.kills || 0) + Math.round(k); }
       else { s.stunG = Math.max(s.stunG || 0, gh + 48); s.gx = (s.gx || 0) - 0.5; m.note = `${esc(s.name)} is torn by strife: no growth for 48 game hours, and it slips back.`; }
-      if (!FACS[s.fac].locked) changeRel(s.fac, -8);
+      if (!FACS[s.fac].locked) changeRel(s.fac, -8, 'agents', 'Your agents in their lands');
     } else {
       const roll = Math.random();
       if (roll < 0.15) { a.dead = true; m.note = `${esc(a.name)} was caught and executed.`; }
       else { a.woundG = gh + ((m.end - m.hitAt) / 3.6e6 * S.speed) + 24; m.note = `${esc(a.name)} was discovered and barely escaped, wounded.`; }
-      if (!FACS[s.fac].locked) changeRel(s.fac, -15);
+      if (!FACS[s.fac].locked) changeRel(s.fac, -15, 'agents', 'Your agents in their lands');
     }
     if (a.dead) { a.mission = null; addReport('loss', `${D.icon} ${a.name} is lost`, `${M.icon} ${M.name} at ${esc(m.tName)} failed. ${m.note}`, t); toast(`☠️ Agent ${a.name} was killed`, 'bad'); }
     return;
@@ -5840,7 +6560,7 @@ function simAdvice(r, t, m) {
   if (dl > 0.25 && r.aSh.antilarge < 0.15) tips.push(`Their army is ${Math.round(dl * 100)}% cavalry & monsters — 🔱 anti-large units would gain up to +${Math.round(dl * 50)}%.`);
   if (r.dSh.ranged > 0.2 && r.aSh.cav < 0.15) tips.push(`${Math.round(r.dSh.ranged * 100)}% of them are ranged — 🐎 cavalry would gain +${Math.round(r.dSh.ranged * 25)}%.`);
   const foot = r.dSh.inf + r.dSh.ranged + r.dSh.siege;
-  if (foot > 0.5 && r.aSh.monster < 0.1 && UNITS[S.faction].some(u => unitTag(u.id) === 'monster')) tips.push(`Mostly infantry — 🦣 monsters would gain +${Math.round(foot * 25)}%.`);
+  if (foot > 0.5 && r.aSh.monster < 0.1 && UNITS[S.faction].some(u => unitTag(u.id) === 'monster')) tips.push(`Mostly infantry — 🦣 monsters or ⚙️ war machines would gain +${Math.round(foot * 25)}%.`);
   if (al > 0.4 && r.dSh.antilarge > 0.2) tips.push(`⚠️ Their 🔱 anti-large troops get +${Math.round(al * 50)}% defense against your large units.`);
   if (t.wall > 0 && r.drop === 0 && m.mode === 'attack') tips.push(`Wall Lv ${t.wall} adds +${Math.round((Math.pow(1.03, t.wall) - 1) * 100)}%${r.dSh.ranged > 0 ? ' and their ranged units get +30%' : ''} — siege engines can breach it.`);
   if (!r.attWin && r.A > 0) tips.push(`You need about <b>${(r.D / r.A).toFixed(2)}×</b> your current offense to win.`);
@@ -6200,13 +6920,14 @@ function awayHTML(dur, news, before) {
 const CART = {
   empire: { cap: 750, spd: 16, name: 'wagons' },
   elves: { cap: 600, spd: 20, name: 'carts' },
-  greenskins: { cap: 1000, spd: 12, name: 'carts' }
+  greenskins: { cap: 1000, spd: 12, name: 'carts' },
+  dwarfs: { cap: 1200, spd: 10, name: 'ore wagons' }
 };
 function cartsBusy(c) { return S.trades.filter(t => t.fromCity === c.id).reduce((s, t) => s + t.carts, 0); }
 function cartsFree(c) { return Math.max(0, c.bld.market - cartsBusy(c)); }
 function cartsNeeded(total) { return Math.ceil(total / CART[S.faction].cap); }
 function incomingTrade(c, r) { return S.trades.filter(t => t.kind === 'send' && t.toCity === c.id && t.phase === 'out').reduce((s, t) => s + (t.res[r] || 0), 0); }
-function barterRate(fac) { return clamp(0.5 + (S.rel[fac] + 100) / 400 + (stance(fac) === 'allied' ? 0.1 : 0), 0.5, 1); }
+function barterRate(fac) { return clamp(0.5 + (S.rel[fac] + 100) / 400 + (stance(fac) === 'allied' ? 0.1 : 0) + (hasTreaty(fac, 'trade') ? 0.1 : 0), 0.5, 1); }
 function barterTarget(c, fac) {
   const cands = S.setts.filter(s => !s.dead && s.fac === fac).map(s => ({ s, p: pathFrom(c, s.x, s.y) })).filter(o => isFinite(o.p.cost));
   cands.sort((a, b) => a.p.cost - b.p.cost);
@@ -6215,7 +6936,7 @@ function barterTarget(c, fac) {
 function pushTrade(c, o, depart) {
   if (cityBesieged(c) || (o.toCity && cityBesieged(cityById(o.toCity)))) toast('⚠️ A besieged city’s wagons may be ambushed — they travel anyway', 'bad');
   const travel = g2r(o.path.cost / CART[S.faction].spd * 3600);
-  const tr = Object.assign({ id: S.nextId++, fromCity: c.id, depart, arrive: depart + travel, travel, phase: 'out', returnAt: null, path: o.path.path }, o);
+  const tr = Object.assign({ id: S.nextId++, fromCity: c.id, depart, arrive: depart + travel, travel, phase: 'out', returnAt: null }, o, { path: (o.path && o.path.path) || [] });
   delete tr.pathObj;
   S.trades.push(tr);
   return tr;
@@ -6288,7 +7009,7 @@ function tradeEvent(id, t) {
         addReport('info', 'Trade refused', `🛒 Your caravan to ${esc(tr.tName)} found no willing buyer and is returning with its goods.`, t);
       } else {
         tr.carry = tr.get;
-        changeRel(tr.fac, 1);
+        changeRel(tr.fac, 1, 'barter', 'Barter with you', 3, 15);
       }
     }
   } else {
@@ -6425,7 +7146,8 @@ function pg(a, fill, ex) { return `<polygon points="${pts(a)}" fill="${fill}"${e
 const STYLE = {
   empire: { key: 'empire', wall: '#d2c6a6', stone: '#8c857a', wood: '#5d4029', roof: '#9b3b2b', roof2: '#3e5c8a', trim: '#2b2622', flag: '#e8e2d2', flag2: '#b3282d', grass: '#4d6631', grass2: '#5a7538', plaza: '#8b7f6a', path: '#7d6c52', glow: '#ffcf6a', awn: ['#b3282d', '#efe6d2'] },
   elves: { key: 'elves', wall: '#efebe2', stone: '#dcd6c9', wood: '#8f7c58', roof: '#2f8c8f', roof2: '#3c66b5', trim: '#d6b24a', flag: '#f4f1e8', flag2: '#2f8c8f', grass: '#5d8a46', grass2: '#6b9a52', plaza: '#d9d2c1', path: '#bdb196', glow: '#c6f6ff', awn: ['#2f8c8f', '#f4f1e8'] },
-  greenskins: { key: 'greenskins', wall: '#6e4c2c', stone: '#6f695f', wood: '#5b3b1f', roof: '#7d6634', roof2: '#7b4626', trim: '#3b3b38', flag: '#4f8a2c', flag2: '#d8d0b8', grass: '#6a5a33', grass2: '#76663b', plaza: '#7b6547', path: '#6a5236', glow: '#ff9a3a', awn: ['#4f8a2c', '#7b4626'] }
+  greenskins: { key: 'greenskins', wall: '#6e4c2c', stone: '#6f695f', wood: '#5b3b1f', roof: '#7d6634', roof2: '#7b4626', trim: '#3b3b38', flag: '#4f8a2c', flag2: '#d8d0b8', grass: '#6a5a33', grass2: '#76663b', plaza: '#7b6547', path: '#6a5236', glow: '#ff9a3a', awn: ['#4f8a2c', '#7b4626'] },
+  dwarfs: { key: 'dwarfs', wall: '#9a948a', stone: '#6e6a64', wood: '#5a3f26', roof: '#a8862f', roof2: '#5b6b7a', trim: '#c9a227', flag: '#e9dcc0', flag2: '#2f4f7a', grass: '#556042', grass2: '#606b4a', plaza: '#8a8378', path: '#76705f', glow: '#ffb347', awn: ['#2f4f7a', '#c9a227'] }
 };
 const ART = { night: 0, st: null };
 function stl() { return STYLE[S.faction]; }
@@ -7086,10 +7808,10 @@ const RARITY = [
 ];
 const ITEM_PREFIX = [['Worn', 'Iron', 'Sturdy'], ['Fine', 'Blessed', 'Runed'], ['Ancient', 'Dread', 'Gleaming'], ['Legendary', 'Mythic', 'Fabled']];
 const ITEM_BASE = {
-  weapon: { empire: ['Runefang', 'Warhammer', 'Greatsword', 'Repeater Pistol'], elves: ['Star Lance', 'Blade of Hoeth', 'Moonbow', 'Sunsteel Sword'], greenskins: ['Choppa', 'Big Smasha', 'Waaagh Axe', 'Spiky Club'] },
-  armour: { empire: ['Plate of Sigmar', 'Gromril Breastplate', 'Reiksguard Mail', 'Griffon Helm'], elves: ['Ithilmar Armour', 'Dragon Armour', 'Shadow Cloak', 'Silver Helm'], greenskins: ['Scrap Plate', 'Iron Hide', 'Spiky Armour', 'Boss Helm'] },
-  banner: { empire: ['Banner of Sigmar', 'Griffon Standard', 'Imperial Banner', 'Steel Standard'], elves: ['Banner of Ellyrion', 'Phoenix Standard', 'Sea Banner', 'Moon Banner'], greenskins: ['Waaagh Banner', 'Skull Totem', 'Bad Moon Banner', 'Gork Icon'] },
-  mount: { empire: ['Warhorse', 'Barded Charger', 'Imperial Pegasus', 'Demigryph'], elves: ['Elven Steed', 'Ellyrian Courser', 'Great Eagle', 'Sun Dragon'], greenskins: ['War Boar', 'Giant Wolf', 'Wyvern', 'Gigantic Spider'] }
+  weapon: { empire: ['Runefang', 'Warhammer', 'Greatsword', 'Repeater Pistol'], elves: ['Star Lance', 'Blade of Hoeth', 'Moonbow', 'Sunsteel Sword'], greenskins: ['Choppa', 'Big Smasha', 'Waaagh Axe', 'Spiky Club'], dwarfs: ['Rune Axe', 'Gromril Hammer', 'Great Axe of the Ancestors', 'Runic Pistol'] },
+  armour: { empire: ['Plate of Sigmar', 'Gromril Breastplate', 'Reiksguard Mail', 'Griffon Helm'], elves: ['Ithilmar Armour', 'Dragon Armour', 'Shadow Cloak', 'Silver Helm'], greenskins: ['Scrap Plate', 'Iron Hide', 'Spiky Armour', 'Boss Helm'], dwarfs: ['Gromril Armour', 'Runic Helm', 'Shield of the Ancestors', 'Ironbreaker Plate'] },
+  banner: { empire: ['Banner of Sigmar', 'Griffon Standard', 'Imperial Banner', 'Steel Standard'], elves: ['Banner of Ellyrion', 'Phoenix Standard', 'Sea Banner', 'Moon Banner'], greenskins: ['Waaagh Banner', 'Skull Totem', 'Bad Moon Banner', 'Gork Icon'], dwarfs: ['Banner of the Hold', 'Rune Standard', 'Grudge Banner', 'Ancestor Standard'] },
+  mount: { empire: ['Warhorse', 'Barded Charger', 'Imperial Pegasus', 'Demigryph'], elves: ['Elven Steed', 'Ellyrian Courser', 'Great Eagle', 'Sun Dragon'], greenskins: ['War Boar', 'Giant Wolf', 'Wyvern', 'Gigantic Spider'], dwarfs: ['Shieldbearers', 'Oathstone', 'Runic Throne', 'Throne of Power'] }
 };
 const RAR_W = { 1: [70, 26, 4, 0], 2: [50, 38, 10, 2], 3: [30, 44, 20, 6], 4: [15, 40, 32, 13], 5: [5, 35, 40, 20] };
 
@@ -7430,7 +8152,7 @@ function useInfluence(id, arg) {
   if (f.inf < a.cost) return toast('Not enough Influence', 'bad');
   if (id === 'intrigue') {
     if (!arg || FACS[arg].locked) return toast('Choose a faction', 'bad');
-    changeRel(arg, 20);
+    changeRel(arg, 20, 'intrigue', 'Court intrigue');
   } else if (id === 'tribute') {
     const v = Math.round(800 + 40 * gameHours() / 24);
     refund(c, [v, v, v, v]);
@@ -7441,7 +8163,8 @@ function useInfluence(id, arg) {
     f.aegisG = gameHours() + 24;
   } else if (id === 'envoy') {
     if (!arg || FACS[arg].locked || stance(arg) !== 'neutral') return toast('Choose a neutral faction', 'bad');
-    changeRel(arg, 60 - S.rel[arg]);
+    changeRel(arg, Math.max(0, 55 - S.rel[arg]), 'envoy', 'Envoys of Ulthuan', 2);
+    signTreaty(arg, 'alliance', 'The Envoys of Ulthuan sealed the pact.');
   } else if (id === 'blessing') {
     const w = S.heroes.filter(h => h.wounded);
     if (!w.length) return toast('No Lord is wounded', 'bad');
@@ -7454,6 +8177,7 @@ function useInfluence(id, arg) {
 }
 function factionPanel() {
   const f = fx(), gh = gameHours();
+  if (S.faction === 'dwarfs') return bogPanelHTML();
   if (S.faction === 'greenskins') {
     const act = waaaghActive();
     return `<div class="panel" onclick="openFaction()" style="cursor:pointer"><div class="row"><span style="font-size:26px">👹</span><div style="flex:1;min-width:0"><b>${act ? 'WAAAGH! in full swing' : 'Fightiness'}</b> <span class="muted small">${act ? '+25% offense · ' + fmtDur(g2r((f.waaaghG - gh) * 3600)) : Math.floor(f.fight) + '/100'}</span>
@@ -7470,6 +8194,7 @@ function factionPanel() {
 function openFaction() { openModal(factionSheet); }
 function factionSheet() {
   const f = fx(), gh = gameHours(), c = CUR();
+  if (S.faction === 'dwarfs') return bogSheetHTML();
   const head = (ic, t, d) => `<div class="grab"></div><div class="shead"><div class="qicon">${ic}</div><div><h3 style="margin:0">${t}</h3><div class="desc">${d}</div></div><button class="hbtn x" onclick="closeModal()">✕</button></div>`;
   if (S.faction === 'greenskins') {
     const act = waaaghActive();
@@ -7684,7 +8409,7 @@ function resolveExplore(m, t) {
   const wound = heroHurt(h, dmg);
   const xp = Math.round(50 * p.lvl * (bold ? 1.4 : 1) * (p.kind === 'lair' ? 1.4 : 1) * rand(0.85, 1.15));
   S.stats.explored = (S.stats.explored || 0) + 1;
-  if (p.kind === 'tomb' && regionAt(p.x, p.y).id === 'nehekhara') { S.tombAnger = (S.tombAnger || 0) + 1; changeRel('tombkings', -8); body += `<div class="muted small neg">🏺 The Tomb Kings will not forget this desecration (−8 relations).</div>`; }
+  if (p.kind === 'tomb' && regionAt(p.x, p.y).id === 'nehekhara') { S.tombAnger = (S.tombAnger || 0) + 1; changeRel('tombkings', -8, 'desecration', 'You desecrated their tombs'); body += `<div class="muted small neg">🏺 The Tomb Kings will not forget this desecration (−8 relations).</div>`; }
   if (h.wounded) {
     if (p.art) { S.pois.push(p); body += `<div class="note bad" style="margin-top:6px">💀 The ${RELICS[p.art].name} still lies hidden here. Send a stronger Lord.</div>`; }
     m.heroId = null; S.marches = S.marches.filter(x => x.id !== m.id);
@@ -8045,6 +8770,7 @@ window.addEventListener('resize', () => { UI.lastHdrH = 0; if (UI.tab === 'map')
   }
   if (saved) {
     S = saved;
+    setFacOrder(S.faction);
     if ((S.v || 1) < SAVE_VERSION || !S.cities) migrate();
     else initWorld(false);
     normalizeSave();
